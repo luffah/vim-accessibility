@@ -1,0 +1,31 @@
+" key(s)        "Comment              " action  %   modechar.postactions
+" this file can be loaded with :KeyMap %
+<F1> Q          "Cleared keys" <nop>        % n
+
+" In the following examples I refers to instert mode and force <C-o> (normal mode)
+" Make Shift+Arrow enter in visual mode from insert mode
+<S-Up>          "Select"       v             %  I
+" Keep the same move behavior in visual mode
+<S-Up>          "Select"       <Up>          %  v
+" Same things with Down Rigt Left, but faster
+<S-Down>        "Select"                     %  Iv v<Down>
+<S-Right>       "Select"                     %  Iv v<Right>
+<S-Left>        "Select"                     %  Iv v<Left>
+
+" Make Ctrl+Space to mark the position in the line
+<C-Space>       "Set mark"                   %  Im` nm` v``
+" Same thing for <Leader><Space>, except for insert mode
+<Leader><Space> "Set mark"                   %  nm` v``
+
+" Copy paste the selection clipboard
+<C-Insert>      "Do copy"                    %  Iv  nv  v"*y
+<S-Del>         "Do cut"                     %  Iv  nv  v"*d
+<S-Insert>      "Do paste"                   %  c<C-r>*  I"*p  n"*p  v"*p
+
+" Completion in insert and normal mode (from normal mode, it forces insert mode)
+<A-Right>       "Compl. filename " pumvisible()?"<Cr>":"%1%<C-x><C-f>"   %  i  -n-%i%
+<A-Left>        "Compl. ommi     " pumvisible()?"<Left>":"%1%<C-x><C-o>" %  i  -n-%i%
+<A-Down>        "Compl. word     " pumvisible()?"<Down>":"%1%<C-x><C-n>" %  i  -n-%i%
+<A-Up>          "Compl.from file " pumvisible()?"<UP>":"%1%<C-x><C-i>"   %  i  -n-%i%
+
+" vim: set nowrap : set ft=vim

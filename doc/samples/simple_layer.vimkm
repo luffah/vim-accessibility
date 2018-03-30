@@ -1,0 +1,11 @@
+"Simple example of how to use a layer
+" this file can be loaded with :KeyMap %
+"
+" ~ in the layer name says to not print
+" informations when activating the layer
+<C-x> "~C-x" <Layer> %  n
+" shortcuts belonging to a layer shall be defined like that
+<Esc> ":Exit"   <ExitLayer> %  n
+<Up>  ":Up"   <Up> %  n
+" however it is possible to define keybinding with layer name
+<Down>  "~C-x:Up"   <Up> %  i

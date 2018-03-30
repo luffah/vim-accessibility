@@ -1,0 +1,68 @@
+" key(s)        "Comment              " action  %   modechar.postactions
+" this file can be loaded with :KeyMap %
+<F6>            "Exe current line"      :exe getline('.')<Cr> % n
+
+" Here N, is insert mode forced to <Esc> normal mode
+" gi return after the action in insert mode
+<F12>           "Indent whole file"     m':0<Cr>vG==''        %  Ngi n
+
+" Usefull to jump faster between files
+<S-Tab>         "Undo cursor move"      <C-O>                 %  n
+<C-Tab>         "Redo cursor move"      <C-I>                 %  n
+
+<A-q>           "Cycle "                 <C-w>w               % n v I
+<A-Q>           "Cycle "                 <C-w>W               % n v I
+<A-b>           "Next buffer"            :bnext<Cr>           % n v
+<A-B>           "Prev buffer"            :bprev<Cr>           % n v
+è               "Follow marker"          <C-]>                % n
+é               "Follow back marker"     <C-t>                % n
+È               "Follow marker in split" <C-w>]               % n
+
+" Copy end of line
+Y               "Copy till end of line"  y$                   % n
+
+" Mark cursor and jump back selecting
+<A-v>           "Select / jump"                               %  Iv`` nv`` vo
+<A-c>           "Set mark"                m`                  %  I
+
+" Usually useful to avoid to hit 'Escape' and ':'
+<A-w>           "Save"                    :w<Cr>              %  N n v
+<A-l>           "Normal mode"             <Esc>               %  i c
+<A-l>           "Command line"            :                   %  n v
+<C-l>           "Command line"            :                   %  I n v
+
+" Another way to avoid to use ':'
+h               "Command line"            :                   %  n o v
+H               "Repeat command line"     ::<Cr>            %  n o v
+
+" Replace guillemots with  'greater than' and 'lesser than'  (bépo)
+" Guillemots are still available with <C-v>« and <C-v>»
+»               "Supérieur"               >                   % c i o n v
+«               "Inférieur"               <                   % c i o n v
+
+" With bépo, it can occur many time to hit accidentally  <S-Space>.
+" Or, the produced char ( ) can make a script crash.
+[FileType python]
+    "Pas d'espace insécable en python"    <Space>             %  c i
+[]
+
+" End of this file is specific to command line ------------------------------
+
+" When typing %%, then you got the directory containing the file
+" the operation need to call expand,
+" and it doesn't check the cursor position in the command line
+" so use it sporadically
+%%    "Local directory"  <C-r>=expand("%:p:h")<Cr>/   %  c
+
+" Aliases are abbreviations (cabbrev) for the command line mode
+" which are shown when any non-word char is typed.
+" Here, the cursor position is checked: the alias shall be typed
+" at the beginning of the command line.
+alias tn tabnew
+alias qa confirm qa
+alias vh vertical rightbelow help
+
+" Now imagine you want an alias which auto-expand all parts of the command.
+" For example you want to open a file in the same directory that the current one,
+" but you doesn't know yet its name.
+tnn   "Local directory"  tabnew %:p:h                 %  A/<C-d>

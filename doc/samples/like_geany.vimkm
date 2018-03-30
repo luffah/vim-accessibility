@@ -1,0 +1,32 @@
+" Geany like subset
+" this file can be loaded with :KeyMap %
+"
+" You can simulate Geany behavior, but be aware of what already exists in Vim.
+" You'll probably adopt some Vim keys instead of some complicated shortcuts of non-modals editor.
+" Notes : C-s  block terminal, try C-q to get back hand
+"         C-h in vim insert mode operate a backspace
+"         C-e in vim insert mode repeat character below, this can be useful
+"         Some keys like A-h in vim produce è
+"         C-d  C-t  decrease / increase tabulation
+
+" Search and replace
+<C-f> "Search  "             /                           %  I n
+<C-h> "Replace "             :%s///g<Left><Left><Left>   %  n
+<C-h> "Replace in selection" :s/\%V//g<Left><Left><Left> %  v
+
+" Line manipulation
+" <C-d> "Duplicate line" y %  IyPgi
+<C-d> "Duplicate line" y %   nyP  vP
+<A-PageUp>           "Move lines up"          :m                   % I.-2<Cr>  n.-2<Cr>  v'<-1<CR>gv=gv
+<A-PageDown>         "Move lines dn"          :m                   % I.+1<Cr>  n.+1<Cr>  v'>+1<CR>gv=gv
+
+" Commenting is usually managed by a plugin.
+" Here ':Comment' comment the current line
+" and  ':CommentBlock' comment the visual selection.
+" <C-e> "Comment" :Comment %  n<Cr>  vBlock<Cr> I<Cr>gi
+
+" Quit
+<C-q> "Quit" :q<CR> %  n
+<C-Q> "Quit" :confirm qa<CR> %  n
+
+" vim: set nowrap : set ft=vim

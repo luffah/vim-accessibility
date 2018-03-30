@@ -1,0 +1,120 @@
+*accessibility.txt* A set of tools for making Vim more accessible
+*accessibility*
+*KeyMap.vim* *colortheme.vim* *remanent.vim* *speak.vim*
+*spell-lang* *selection.vim*
+
+
+                                                            *accessibility-toc*
+
+      DESCRIPTION  = = = = = = = = = = = = = = = = = =  |accessibility-intro|
+      VARIABLES  = = = = = = = = = = = = = = = = = = =  |accessibility-variables-readonly|
+      VARIABLES  = = = = = = = = = = = = = = = = = = =  |accessibility-variables|
+      COMMANDS = = = = = = = = = = = = = = = = = = = =  |accessibility-commands|
+      KEYBINDINGS  = = = = = = = = = = = = = = = = = =  |accessibility-keybindings|
+      API  = = = = = = = = = = = = = = = = = = = = = =  |accessibility-api|
+
+==============================================================================
+DESCRIPTION                                                        *accessibility-intro*
+
+
+                                                                   |accessibility-toc|
+TODO - HELP IS WELCOME
+see doc/samples to guess how to configure
+
+
+
+Authors:
+  Luffah           Original code
+
+Licenses:
+  Public Domain
+  CC BY SHARE ALIKE
+  GPL
+  Same kind as vim -- we care to free software but we need to free peoples
+
+==============================================================================
+READ ONLY VARIABLES                               *accessibility-variables-readonly*
+                                                                |accessibility-toc|
+
+*g:layer_status*
+                   Default state : " "
+                   Contain a description of the current active keymapping layer
+
+
+
+
+==============================================================================
+VARIABLES                                                       *accessibility-variables*
+                                                                |accessibility-toc|
+
+
+*g:scheduled_colorscheme_plan*
+                   Default : {}
+                   Contain the names of the themes to activate given the moment in the day.
+
+==============================================================================
+COMMANDS                                                       *accessibility-commands*
+                                                                |accessibility-toc|
+
+
+:SpeakLine  [lang]  *speak-line*
+                  Send to speech dispatcher the current line.
+
+:SpeakLinePunc [lang] *speak-line*
+                  Send to speech dispatcher the current line, spelling the non-words characters.
+
+:SpeakClear         *speak-clear*
+                  Stop the current speech process.
+
+
+:SpeakExpand <text with vars>
+:SpeakReg <register>
+:SpeakCmdOutput <command>
+:SpeakYanked
+                                    = :SpeakReg "
+:SpeakChar
+:SpeakCharI
+:SpeakSearchWord
+:SpeakMatches
+:SpeakMatchesNumber
+:SpeakFile
+:SpeakFileName
+:SpeakLineNum
+:SpeakColNum
+:SpeakWord
+:SpeakWORD
+:SpeakWORDPunc
+
+
+==============================================================================
+KEYBINDINGS                                                   *accessibility-editing*
+                                                                 |accessibility-toc|
+
+
+Here is a summary of the default settings.
+ ------------------- ----- -------------- --------------------------------
+|Actions            | Mode| Default Key  | Description                    |
++-------------------+-----+--------------+---------------------------------
+==Remanent==
+|                   |     |              |_
+|
+==Speak==
+|Toggle Speak Layout| n   | <C-s>        |_ Change move keys to have an audio callback
+|                   |     |              |  w, W, <Left>, <Right>, <Up>, <Down>, /, ?,
+|                   |     |              |  n, N, :, <Cr>, b, e, i
+|Speak Current Line |     | <S-Cr>       |_ Inside Speak layout :
+|                   |     |              |  insert-mode -> say the current line
+|                   |     |              |  normal-mode -> say the current line
+|                   |     |              |  command-mode -> say the current command line
+|                   |     |              |  visual-mode -> say the current selected text
+|
+
+==============================================================================
+API                                                                   *accessibility-api*
+
+Functions you can use :
+
+Speak(text,[options,[lang]])
+
+==============================================================================
+vim:tw=78:fo=tcq2:isk=!-~,^*,^\|,^\":ts=8:ft=help:norl:

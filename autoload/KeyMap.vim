@@ -54,9 +54,9 @@ let g:km_layer_toggle = "<Layer>"
 let g:km_layer_exit = "<ExitLayer>"
 let g:km_layer_oneshot = "<OneShot"
 let g:km_actions_substitutions={
-      \'<OneShot=\(\a\+\)>': "<Esc>:call <SID>OneShot('<ActionName>','<Mode>','\\1')<Cr>",
-      \'<Layer>' : "<Esc>:call <SID>ToggleLayer('<ActionName>')<Cr>",
-      \'<ExitLayer>': "<Esc>:call <SID>ToggleLayer('<LayerName>')<Cr>"
+      \'<OneShot=\(\a\+\)>': "<Esc>:call KeyMap#OneShot('<ActionName>','<Mode>','\\1')<Cr>",
+      \'<Layer>' : "<Esc>:call KeyMap#ToggleLayer('<ActionName>')<Cr>",
+      \'<ExitLayer>': "<Esc>:call KeyMap#ToggleLayer('<LayerName>')<Cr>"
       \}
 
 
@@ -187,7 +187,7 @@ endfu
 "
 " #ToogleLayer -> switch to an other keymap layer
 " :layer: the layer name (unique indentifier)
-fu! s:ToggleLayer(layer)
+fu! KeyMap#ToggleLayer(layer)
   " # Revert any previous keymapping layer
   for v_mode in keys(g:km_revert_keymapping)
     for v_keys in keys(g:km_revert_keymapping[v_mode])
@@ -254,42 +254,41 @@ endfunction
 "        \." )\nendfunction"
 "  return l:func_name
 "endfu
-fu! s:OneShot(layer,mode,commandkey)
+fu! KeyMap#OneShot(layer,mode,commandkey)
   " !! : only work for one char keybind
   " !! : doesn't allow keymapping advanced option (autocommand)
   let l:layer_km=get(g:km_layer_keymapping,a:layer, 0)
+  let l:prev_layer=g:km_active_layer
+  let g:km_active_layer=a:layer
   if !empty(l:layer_km)
-    if has_key(l:layer_km, a:mode)
-      let l:prev_layer=g:km_active_layer
-      let g:km_active_layer=a:layer
-      cal KeyMap#PrintLayer(a:layer)
-      let l:c=nr2char(getchar())
-      if has_key(l:layer_km, a:mode) && has_key(l:layer_km[a:mode],l:c)
-        let l:actiontable=l:layer_km[a:mode][l:c]
-        let l:action=l:actiontable[1]
-        call s:CloseLayerPrint()
-        let g:km_active_layer=l:prev_layer
-        let g:layer_status=s:LayerStatus()
-        try
-          exe l:action
-        catch
-          echo l:action.' "fails'
-        endtry
-        return
-      elseif has_key(l:layer_km['1'],l:c)
-        let l:actiontable=l:layer_km['1'][l:c]
-        let l:action=l:actiontable[1]
-      else
-        let l:action=l:c
-      endif
-      call s:CloseLayerPrint()
-      try
-        exe a:commandkey.' '.l:action
-      catch
-        echomsg l:action.' is not a valid key. (mode: '.a:mode', commandkey:'.a:commandkey.')'
-      endtry 
-    endif
+    cal KeyMap#PrintLayer(a:layer)
   endif
+  let l:c=nr2char(getchar())
+  let l:action=l:c
+  if !empty(l:layer_km)
+    if has_key(l:layer_km, a:mode) && has_key(l:layer_km[a:mode],l:c)
+      let l:actiontable=l:layer_km[a:mode][l:c]
+      let l:action=l:actiontable[1]
+      call s:CloseLayerPrint()
+      let g:km_active_layer=l:prev_layer
+      let g:layer_status=s:LayerStatus()
+      try
+        exe l:action
+      catch
+        echo l:action.' "fails'
+      endtry
+      return
+    elseif has_key(l:layer_km['1'],l:c)
+      let l:actiontable=l:layer_km['1'][l:c]
+      let l:action=l:actiontable[1]
+    endif
+    call s:CloseLayerPrint()
+  endif
+  try
+    exe a:commandkey.' '.l:action
+  catch
+    echomsg l:action.' is not a valid key. (mode: '.a:mode', commandkey:'.a:commandkey.')'
+  endtry
   let g:km_active_layer=l:prev_layer
   let g:layer_status=s:LayerStatus()
 endfu

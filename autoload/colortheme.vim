@@ -108,7 +108,7 @@ fu! s:HourColor(ft)
 endfu
 
 command! -nargs=1 SetColorScheme call s:SetColorScheme(<q-args>)
-command! -nargs=1 HourColorScheme call s:HourColorScheme(&ft)
+command! HourColorScheme call s:HourColor(&ft)
 command! -bar NextColorScheme echomsg "Before : ".g:colors_name
       \| echomsg "[Current : ".s:NextColor(1)."]"
       \| if ((s:last_colorsheme_index + 1) < len(s:colors))

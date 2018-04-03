@@ -11,13 +11,16 @@ endif
 let s:deflang='en'
 
 fu! s:GetSpellLang(filename,defaultlang)
+  let l:lang=''
   let l:path=split(a:filename,'/')
   let l:lpos=match(l:path,'locale.\?')
   if l:lpos > -1
     let l:lang=l:path[l:lpos+2]
   else
     let l:parts=split(l:path[-1],'\.')
-    let l:lang=l:parts[-2]
+    if len(l:parts) > 1
+      let l:lang=l:parts[-2]
+    endif
   endif
   if l:lang !~ '^\l\{2}\(_\u\{2}\)\?$'
     let l:lang=a:defaultlang

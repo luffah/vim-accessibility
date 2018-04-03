@@ -95,3 +95,28 @@ fu! selection#getSelectedText()
   norm 
   return l:ret
 endfu
+
+fu! selection#Status()
+  let l:mode=mode()
+  let l:ret=''
+  if (l:mode!='i')
+    if (l:mode!='n')
+      let l:lv=line('v')
+      let l:li=line('.')
+      let l:cv=col('v')
+      let l:ci=col('.')
+      if (l:mode==?"")
+        let l:ret=' ['.(abs(l:ci-l:cv)+1).','.(abs(l:li-l:lv)+1).']'
+      elseif (l:mode==#"V")
+        let l:ret=' ['.(col('$')-1).','.(abs(l:li-l:lv)+1).']'
+      elseif (l:mode==#'v')
+        if l:li == l:lv
+          let l:ret=' ['.(abs(l:ci-l:cv)+1).'ch]'
+        else
+          let l:ret=' ['.len(s:getTextInRange(l:lv,l:cv,l:li,l:ci)).'ch]'
+        endif
+      endif
+    endif
+  endif
+  return l:ret
+endfu

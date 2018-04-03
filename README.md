@@ -77,8 +77,27 @@ This project group all the things needed to make Vim more accessible for people.
     Anyway, in a GVim just hit `<C-s>` (Ctrl + s) to toggle a screen reader mode.
 
 # Installation
+Get the repository.
+```sh
+# 'ui' is abitrary chosen for 'user interface'
+mkdir -p ~/.vim/pack/ui/start
+git clone https://github.com/luffah/vim-accessibility.git ~/.vim/pack/ui/start/accessibility
+```
 ```vim
-"
+packloadall
+
+" Examples
+let mapleader=","
+KeyMap $VIMPLUGINS/vim-accessibility/doc/samples/common.vimkm
+KeyMap $VIMPLUGINS/vim-accessibility/doc/samples/bepo.vimkm
+```
+
+<details>
+<summary>My Vim doesn't support +packages</summary>
+If you have an old version of Vim (< 8), it is useless to create `~/.vim/pack/`. Just use the path where you install your plugins.
+
+```vim
+
 " let $VIMPLUGINS = <Path to directory containing your plugins>
 "
 " [Optional]
@@ -92,11 +111,12 @@ filetype indent plugin on
 " Given plugins commands are only usable after initialization
 " Sourcing the files, ensure KeyMap is known.
 so $VIMPLUGINS/vim-accessibility/loader.vim
-let mapleader=","
 " Examples
+let mapleader=","
 KeyMap $VIMPLUGINS/vim-accessibility/doc/samples/common.vimkm
 KeyMap $VIMPLUGINS/vim-accessibility/doc/samples/bepo.vimkm
 ```
+</details><br>
 
 # License
 [Vim](https://www.vim.org/) is distributed under [GPL-compatible Charityware License](https://www.gnu.org/licenses/vim-license.txt).<br>

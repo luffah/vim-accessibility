@@ -5,7 +5,7 @@
 " @Last Change: 2018-03-29
 " @Revision:    1
 if exists('g:loaded_accessibility_keymap') || &compatible
-    finish
+    "finish
 endif
 let g:loaded_accessibility_keymap=1
 
@@ -40,6 +40,7 @@ let g:km_mode_hash={
       \'l':[],'L':['l','<Esc>',''],
       \'c':[],'C':['c','<Esc>',''],
       \'A':['c',"<C-r>=<SID>dyn_alias('<Keybind>','","')<Cr>"],
+      \'a':['c',"<C-r>=<SID>dyn_expand('","')<Cr>"],
       \'t':[],'T':['t','<Esc>','']
       \}
 
@@ -73,18 +74,28 @@ else
         \}
   fu! s:ensure_keybinding(k)
     let l:m=match(a:k,'<A-.>')
-    if l:m > -1
+    let l:n=0
+    let l:ret=''
+    while l:m > -1
+      if l:m > l:n 
+        let l:ret.=a:k[l:n:l:m]
+      endif
       let l:n=match(a:k,'>',l:m)
       let l:k=strpart(a:k, l:m+3 , l:n-l:m-3)
       let l:altk="<A-".l:k.">"
       if has_key(s:ensured_key,l:altk)
-        return s:ensured_key[l:altk]
+        let l:ret.=s:ensured_key[l:altk]
       else
         execute "set ".l:altk."=\e".l:k
         let s:ensured_key[l:altk]=l:altk
+        let l:ret.=l:altk
       endif
-    endif
-    return a:k
+      let l:n+=1
+      let l:m=match(a:k,'<A-.>',l:n)
+    endwhile
+    let l:ret.=a:k[l:n:]
+    " echo a:k.'->'.l:ret
+    return l:ret
   endfu
 endif
 
@@ -129,10 +140,12 @@ endfu
 
 " # s:CloseLayerPrint() -> a short string to indicate the current layer
 let s:layer_desc_bufnr=0
+let s:prev_size=0
 fu! s:CloseLayerPrint()
   if !empty(s:layer_desc_bufnr)
     let l:winnr=bufwinnr(s:layer_desc_bufnr)
     exe l:winnr.'windo bd'
+    exe 'resize '.s:prev_size
     let s:layer_desc_bufnr=0
   endif
 endfu
@@ -166,11 +179,13 @@ fu! KeyMap#PrintLayer(layer)
   endif
   if !empty(l:prt)
     let l:related=bufnr('%')
+    let s:prev_size=winheight(l:related)
     rightbelow split
     enew
     let s:layer_desc_bufnr=bufnr('%')
     set buftype=nowrite
     set ft=keymapping
+    exe 'resize '.len(l:prt) 
     call setline(1,l:prt)
     exe winbufnr(l:related).'wincmd w'
   endif
@@ -241,6 +256,7 @@ fu! KeyMap#ToggleLayer(layer)
   redrawstatus!
 endfu
 command! -nargs=* -complet=customlist,<SID>LayerNameComplete Layer cal s:ToggleLayer(<q-args>) 
+command! -nargs=0 Layers echo keys(g:km_layer_keymapping)
 fu! s:LayerNameComplete(A,L,P)
   return keys(g:km_layer_keymapping)
 endfunction
@@ -456,32 +472,53 @@ fu! s:dyn_alias(in,out)
  endif
 endfu
 
+fu! s:dyn_expand(out)
+ if getcmdtype()==':'
+   return join(map(split(a:out,' '),'expand(v:val)'),' ')
+ endif
+endfu
+
 function! KeyMap#Alias(alias, cmd, ...)
   let l:autocmdopt=join(a:000, '')
   let l:autocmd=''
   if len(l:autocmdopt)
      let l:autocmd = 'autocmd ' . l:autocmdopt . ' '
   endif
-  exe l:autocmd."cabbrev ".a:alias.
-        \ " <C-r>=(getcmdtype()==':' && getcmdpos() == 1? '".
-        \ a:cmd."' : '".a:alias."')<Cr>"
+  exe l:autocmd.'cabbrev '.a:alias.
+        \ ' <C-r>=(getcmdtype()==":" && getcmdpos() == 1? "'.
+        \ escape(a:cmd,'"\').'" : "'.escape(a:alias,'"\').'")<Cr>'
 endfu
 
 "<F1> Q   "Cleared keys         " <nop> % n
 fu! s:ReadKeyFile(file)
   " echo a:file
   let l:autocmdinfo=''
+  let l:skip=0
+  let l:skipdone=0
   for l:l in readfile(a:file)
     if len(l:l) && l:l !~ '^"'
-      if l:l =~ '^\[.*]'
-        let l:auend=match(l:l,']',1)
-        let l:autocmdinfo=strpart(l:l,1,l:auend-1)
-      elseif l:l =~ '^alias'
-        cal s:ReadAliasLine(l:l,l:autocmdinfo)
-      elseif l:l =~ '\S\+\s\+".*"\s\+.*%.*'
-        cal s:ReadKeyLine(l:l,l:autocmdinfo)
-      else
-        echo 'Syntax Error : '.l:l
+      if !skipdone && l:l =~ '^finish\s*$'
+        " finish allow to secure keymap file from loading with source %
+        " KeyMap % .. to load the file with so %
+        " it allows to put vim commands from KeyMap or from if 0
+        " Then it allows to do inception
+        let l:skip=0
+        let l:skipdone=1
+        continue
+      elseif !l:skip
+        if l:l =~ '^\[.*]'
+          let l:auend=match(l:l,']',1)
+          let l:autocmdinfo=strpart(l:l,1,l:auend-1)
+        elseif l:l =~ '^alias'
+          cal s:ReadAliasLine(l:l,l:autocmdinfo)
+        elseif l:l =~ '\S\+\s\+"[^"]*"\s\+\(\S.\+\)\?%\(\s\+.\+\)\?'
+          cal s:ReadKeyLine(l:l,l:autocmdinfo)
+        elseif l:l =~ '^\(if 0\|KeyMap \).*'
+          let l:skip=1
+          continue
+        else
+          echo 'Syntax Error : '.l:l
+        endif
       endif
     endif
   endfor
@@ -510,7 +547,7 @@ fu! s:ReadKeyLine(line,autocmdinfo)
         \split(strpart(a:line,l:modes_pos+2),' '),
         \'len(v:val)')
   let l:comment=substitute(substitute(l:comment,'"\s*','',''),'\s*"','','')
-  let l:action=strpart(a:line,l:action_pos,l:modes_pos-l:action_pos)
+  let l:action=substitute(strpart(a:line,l:action_pos,l:modes_pos-l:action_pos),'\s*$','','')
   " echo [l:comment, l:keys,l:action,l:modes,a:autocmdinfo]
   cal KeyMap#Map(l:comment, l:keys,l:action,l:modes,a:autocmdinfo)
 endfu

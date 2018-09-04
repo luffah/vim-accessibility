@@ -2,34 +2,136 @@
 " @Author:      luffah (luffah AT runbox com)
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2018-03-26
-" @Last Change: 2018-03-29
-" @Revision:    1
+" @Last Change: 2018-06-10
+" @Revision:    4
 if exists('g:loaded_accessibility_keymap') || &compatible
     "finish
 endif
-let g:loaded_accessibility_keymap=1
+
+" @fileformat *KeyMap-format*
+" Given :
+"  * keybind(s) is a list of keybinds (separated by a ' ')
+"  * Comment is an human description of the action
+"  * Action is a sequence of keys as it was typed
+"  * Mode(s)/Post-Action(s) is a list (separated by a ' ') of:
+"    * Mode is a mode as defined in |g:km_mode_hash|
+"    * Post-Action is a sequence of keys
+"
+" The short format to define keymaps is the following.```
+"  "keybind(s) "Comment"           Action         % mode(s)/post-action(s)
+"  <F1>        "Cleared key"        <nop>         % c v
+"  <F2> <F3>   "Cleared keys"       <nop>         % c v
+"  <A-t>       "Cycle tab"          gt            % n I
+"  <A-T>       "Cycle tab"          gT            % n I
+"  
+"  " Mode variation for an uniq keybind 
+"  <A-P>       "Do paste"                         % c<C-r>+ I"+P  n"+P  v"+P
+"
+"  " Use expressions
+"  <A-Up>   "Complete/select"  <expr>pumvisible()?"<KeyBind>":"<C-x><C-i>" % i
+"
+"  "Simple commands from normal mode
+"  <F11> "-" registers %  :
+"
+"  "Filetype rules
+"  [FileType python]
+"            "No invisible space" <Space>         %  c i
+"  []
+"
+"  " COMMAND LINE SPECIFIC
+"  " Dynamic variable expansion
+"  %%        "Local dir"          %:p:h/          % a
+"
+"  " Aliases
+"  tnn       "Show files arround" tabnew %:p:h    % A/<C-d>
+"  alias qa confirm qa
+"```
+" See ./samples/ to get many examples.
+"
+" @fileformat *keymap-inception* 
+" "Keymap inception" is the practice to bind |KeyMap-format| in a vim
+" script. In order to use it, the script part shall be at file beginning
+" and be surrounded by `if 0 | endif` and `finish`. ```
+"      if 0 | endif
+"      KeyMap <sfile>
+"      finish
+"      Q        "Cleared key" <nop> % n
+" ```
+
+" @global g:km_file_include_sid
+" To set before using |:Keymap| in order to use script local variable
+" and function.
+let g:km_file_include_sid=0
+
+" @global g:km_file_substs
+" To set before using |:Keymap| in order to use to substitute repetitive
+" sequence.
+" Require |keymap-inception|. ```
+"      if 0 | endif
+"      let g:km_file_substs=[
+"      \ ['pum?', '<expr>pumvisible()?', '']
+"      \]
+"
+"      KeyMap <sfile>
+"      finish
+"      <A-Up>    "Compl.from file  " pum?"<UP>":"<C-x><C-i>"   %  i
+"      finish
+"```
+let g:km_file_substs=[]
 
 " Variables Globales, do not set
-let g:km_default_layername=" "
-let g:layer_status=''
+let g:km_default_layername=get(g:,'km_default_layername'," ")
+" @global g:km_layer_status
+" Layer status string.
+" If you customize your statusline your could need to add : ```
+"   let &statusline="%#ModeMsg#%{g:km_layer_status}%#{}#".&statusline
+"```
+let g:km_layer_status=get(g:,'km_layer_status','')
 
 " Initialisation
-let g:km_active_layer=g:km_default_layername
-let g:km_layer_keymapping={g:km_default_layername:{}}
-let g:km_revert_keymapping={}
-let g:km_layer_desc={}
-let g:km_layer_desc_renderer={}
+let g:km_active_layer=get(g:,'km_active_layer',g:km_default_layername)
+let g:km_layer_keymapping=get(g:,'km_layer_keymapping',{g:km_default_layername:{}})
+let g:km_revert_keymapping=get(g:,'km_revert_keymapping',{})
+let g:km_layer_desc=get(g:,'km_layer_desc',{})
+let g:km_layer_desc_renderer=get(g:,'km_layer_desc_renderer',{})
 
 " 1 -> show explanation for alternatives keys
 let g:km_document_alternatives = get(g:, 'km_document_alternatives', 0)
 
 " add layer to the status
-let &statusline="%#ModeMsg#%{g:layer_status}%#{}#".&statusline
+let &statusline="%#ModeMsg#%{g:km_layer_status}%#{}#".&statusline
 
-
+" @global g:km_mode_hash
 " All known modes, shall not be set before the plugin is loaded
-" to modify or add a mode :
-" Example : let g:km_mode_hash['y']=['i','<C-v>','']
+" to modify or add a mode. Example : ```
+"    " 'I' for one-shot normal mode from insert mode
+"    let g:km_mode_hash['I']=['i','<C-o>','']
+"```
+" A value of this dict is a list : (mode, before_action, after_action)
+" Note: after_action is followed by the post-action (see |KeyMap-format|)
+"
+" Default values (with $A as action, and $P as post-action):
+"     n -> in normal mode, do $A$P
+"     : ->               , do :$A<Cr>$P
+"     i- > in insert mode, do $A$P
+"     N ->               , do <Esc>$A$P
+"     I ->               , do <C-o>$A$P
+"     v -> in select/visual mode, do $A$P
+"     V ->                     ", do <Esc>$A$P
+"     s -> in select mode, do $A$P
+"     S ->               , do <Esc>$A$P
+"     x -> in visual mode, do $A$P
+"     X ->               , do <Esc>$A$P
+"     o -> in operator-pending mode, do $A$P
+"     O ->                         , do <Esc>$A$P
+"     l -> in insert/command-line/lang-arg mode, do $A$P
+"     L ->                                     , do <Esc>$A$P
+"     c -> in command-line mode, do $A$P
+"     C ->                     , do <Esc>$A$P
+"     a ->                     , expand to $A and do $P
+"     A ->                     , expand to $A if keybind is the first element
+"                                (Equivalent of 'alias keybind $A'
+"                                 with dynamic expansion)
 let g:km_mode_hash={
       \'n':[],':':['n',':','<Cr>'],
       \'i':[],'I':['i','<C-o>',''],'N':['i','<Esc>',''],
@@ -44,6 +146,7 @@ let g:km_mode_hash={
       \'t':[],'T':['t','<Esc>','']
       \}
 
+" @global g:km_status_substitions
 " Representation of the mode in the status bar
 let g:km_status_substitions={
       \"" : "^",
@@ -63,16 +166,17 @@ let g:km_actions_substitutions={
 
 " We need to ensure Alt keybindings work in terminal as much in gui
 if has("gui_running") || has("nvim")
-  fu! s:ensure_keybinding(k)
-    return a:k
+  fu! KeyMap#ensureKeybind(k)
+    return escape(a:k,'|')
   endfu
 else
   let s:ensured_key={
         \"<A-à>":"à",
         \"<A-é>":"é",
-        \"<A-è>":"è"
+        \"<A-è>":"è",
         \}
-  fu! s:ensure_keybinding(k)
+  fu! KeyMap#ensureKeybind(k)
+    " TODO:solve <A-"> case
     let l:m=match(a:k,'<A-.>')
     let l:n=0
     let l:ret=''
@@ -95,7 +199,7 @@ else
     endwhile
     let l:ret.=a:k[l:n:]
     " echo a:k.'->'.l:ret
-    return l:ret
+    return escape(l:ret,'|')
   endfu
 endif
 
@@ -138,21 +242,9 @@ fu! s:LayerStatus()
   return l:ret
 endfu
 
-" # s:CloseLayerPrint() -> a short string to indicate the current layer
-let s:layer_desc_bufnr=0
-let s:prev_size=0
-fu! s:CloseLayerPrint()
-  if !empty(s:layer_desc_bufnr)
-    let l:winnr=bufwinnr(s:layer_desc_bufnr)
-    exe l:winnr.'windo bd'
-    exe 'resize '.s:prev_size
-    let s:layer_desc_bufnr=0
-  endif
-endfu
 "
 " Layer Description
 fu! KeyMap#PrintLayer(layer)
-  call s:CloseLayerPrint()
   let l:prt=[]
   if has_key(g:km_layer_desc,a:layer)
     let l:desc=g:km_layer_desc[g:km_active_layer]
@@ -177,22 +269,11 @@ fu! KeyMap#PrintLayer(layer)
       endfor
     endfor
   endif
-  if !empty(l:prt)
-    let l:related=bufnr('%')
-    let s:prev_size=winheight(l:related)
-    rightbelow split
-    enew
-    let s:layer_desc_bufnr=bufnr('%')
-    set buftype=nowrite
-    set ft=keymapping
-    exe 'resize '.len(l:prt) 
-    call setline(1,l:prt)
-    exe winbufnr(l:related).'wincmd w'
-  endif
-  redraw
-  redrawstatus
+  call statusui#HelpWin('Layer '.a:layer,l:prt,'keymapping')
 endfu
 
+" @function KeyMap#PrintCurrentLayer()
+" Print current keybind layer.
 fu! KeyMap#PrintCurrentLayer()
   call KeyMap#PrintLayer(g:km_active_layer)
 endfu
@@ -204,79 +285,83 @@ endfu
 " :layer: the layer name (unique indentifier)
 fu! KeyMap#ToggleLayer(layer)
   " # Revert any previous keymapping layer
-  for v_mode in keys(g:km_revert_keymapping)
-    for v_keys in keys(g:km_revert_keymapping[v_mode])
-      exe g:km_revert_keymapping[v_mode][v_keys]
+  for l:mode in keys(g:km_revert_keymapping)
+    for l:keys in keys(g:km_revert_keymapping[l:mode])
+      exe g:km_revert_keymapping[l:mode][l:keys]
     endfor
   endfor
   let g:km_revert_keymapping={}
   " # If Layer already active, just unset the current layer name 
   if !len(a:layer) || g:km_active_layer==a:layer
     let g:km_active_layer=g:km_default_layername
-    call s:CloseLayerPrint()
+    call statusui#CloseHelpWin()
   else
     " # Set the keymapping
     let g:km_active_layer=a:layer
     let l:layer_km=get(g:km_layer_keymapping,a:layer, 0)
-    for v_mode in keys(l:layer_km)
-      if !has_key(g:km_revert_keymapping,v_mode)
-        let g:km_revert_keymapping[v_mode]={}
+    for l:mode in keys(l:layer_km)
+      if !has_key(g:km_revert_keymapping,l:mode)
+        let g:km_revert_keymapping[l:mode]={}
       endif
-      for v_key in keys(l:layer_km[v_mode])
+      for l:key in keys(l:layer_km[l:mode])
         " # Map keybind 
-        let l:actiontable=l:layer_km[v_mode][v_key]
+        let l:actiontable=l:layer_km[l:mode][l:key]
         let l:action=l:actiontable[1]
         let l:autocmd=l:actiontable[2]
         let l:keybinding_opts=l:actiontable[3]
-        let l:mapaction = l:autocmd  . v_mode.'noremap ' .
-              \l:keybinding_opts . v_key . ' ' . l:action
+        let l:recursive=len(l:actiontable)>4
+        let l:mapaction = l:autocmd  . l:mode.(l:recursive?'': 'nore').'map ' .
+              \l:keybinding_opts . l:key . ' ' . l:action
         exe l:mapaction
         " # Now, setup the undo
-        let l:layer_revert_km=get(g:km_layer_keymapping[g:km_default_layername],v_mode,0)
-        let l:actiontable=get(l:layer_revert_km,v_key,0)
+        let l:layer_revert_km=get(g:km_layer_keymapping[g:km_default_layername],l:mode,0)
+        if !empty(l:layer_revert_km)
+          let l:actiontable=get(l:layer_revert_km,l:key,0)
+        else
+          let l:actiontable={}
+        endif
         if !empty(l:actiontable)
           let l:action=l:actiontable[1]
           let l:autocmd=l:actiontable[2]
           let l:keybinding_opts=l:actiontable[3]
-          let l:mapaction = l:autocmd  . v_mode.'noremap ' .
-                \l:keybinding_opts . v_key . ' ' . l:action
+          let l:recursive=len(l:actiontable)>4
+          let l:mapaction = l:autocmd  . l:mode.(l:recursive?'': 'nore').'map ' .
+                \l:keybinding_opts . l:key . ' ' . l:action
           let l:revert_action=l:mapaction
         else
-          let l:revert_action=v_mode.'unmap '.v_key
+          let l:revert_action=l:mode.'unmap '.l:key
         endif
-        let g:km_revert_keymapping[v_mode][v_key]=l:revert_action
+        let g:km_revert_keymapping[l:mode][l:key]=l:revert_action
       endfor
     endfor
     if ( a:layer[0] != '~' )
       cal KeyMap#PrintCurrentLayer()
     endif
   endif
-  let g:layer_status=s:LayerStatus()
+  let g:km_layer_status=s:LayerStatus()
   redraw!
   redrawstatus!
 endfu
+
+" @command :Layer [layer_name]
+" Toggle [layer_name].
 command! -nargs=* -complet=customlist,<SID>LayerNameComplete Layer cal s:ToggleLayer(<q-args>) 
+
+" @command :Layers
+" List possible values for |:Layer|.
 command! -nargs=0 Layers echo keys(g:km_layer_keymapping)
 fu! s:LayerNameComplete(A,L,P)
   return keys(g:km_layer_keymapping)
 endfunction
 
-"fu! FunComplDir(dir)
-"  let l:func_name='ComplFun'.substitute(a:dir,'\A','','g')
-"  let l:dir=substitute(a:dir,'[/]*$','/','g')
-"  exe "function! ".l:func_name."(A,L,P) \n return map("
-"        \." globpath('".l:dir."', a:A.'*', 0, 1), "
-"        \." 'strpart(v:val,".len(l:dir).").(isdirectory(v:val)?\"/\":\"\")'"
-"        \." )\nendfunction"
-"  return l:func_name
-"endfu
 fu! KeyMap#OneShot(layer,mode,commandkey)
   " !! : only work for one char keybind
   " !! : doesn't allow keymapping advanced option (autocommand)
   let l:layer_km=get(g:km_layer_keymapping,a:layer, 0)
-  let l:prev_layer=g:km_active_layer
-  let g:km_active_layer=a:layer
+  " let l:prev_layer=g:km_active_layer
+  " let g:km_active_layer=a:layer
   if !empty(l:layer_km)
+    echo 'print layer'
     cal KeyMap#PrintLayer(a:layer)
   endif
   let l:c=nr2char(getchar())
@@ -285,9 +370,9 @@ fu! KeyMap#OneShot(layer,mode,commandkey)
     if has_key(l:layer_km, a:mode) && has_key(l:layer_km[a:mode],l:c)
       let l:actiontable=l:layer_km[a:mode][l:c]
       let l:action=l:actiontable[1]
-      call s:CloseLayerPrint()
-      let g:km_active_layer=l:prev_layer
-      let g:layer_status=s:LayerStatus()
+      call statusui#CloseHelpWin()
+      " let g:km_active_layer=l:prev_layer
+      " let g:km_layer_status=s:LayerStatus()
       try
         exe l:action
       catch
@@ -298,26 +383,26 @@ fu! KeyMap#OneShot(layer,mode,commandkey)
       let l:actiontable=l:layer_km['1'][l:c]
       let l:action=l:actiontable[1]
     endif
-    call s:CloseLayerPrint()
+    call statusui#CloseHelpWin()
   endif
   try
     exe a:commandkey.' '.l:action
   catch
     echomsg l:action.' is not a valid key. (mode: '.a:mode', commandkey:'.a:commandkey.')'
   endtry
-  let g:km_active_layer=l:prev_layer
-  let g:layer_status=s:LayerStatus()
+  " let g:km_active_layer=l:prev_layer
+  " let g:km_layer_status=s:LayerStatus()
 endfu
 
 " Main Mapping function
 " --------------------------
 let s:last_layer=g:km_default_layername
 
-" function Map (str name, str keybind, str action, [str mode_and_post_action]...)
+" @function KeyMap#Map(name, keybinds, action, modes_and_post_actions)
 " Assign keybindings with these arguments
-" - name  required for info e.g. 'Save the file', 
+" - name   required for info e.g. 'Save the file', 
 " - keybind or keybind list e.g. '<C-s>', ['<C-s>','<C-S'>]
-" - action                  e.g. ':w<CR>',
+" - action                   e.g. ':w<CR>',
 " - list of mode (1st char)
 "   and post action         e.g. 'i','Ia','n','v' 
 " e.g. 'ia' -> for insert mode do the keybinding a reenter in insert mode with 'a' 
@@ -326,8 +411,7 @@ fu! KeyMap#Map(name, keybind, action, modes,...)
   " correct types
   let l:keybind_alternatives = type(a:keybind) == type([]) ? a:keybind : [a:keybind]
   let l:modes = type(a:modes) == type([]) ? a:modes : [a:modes]
-  " 
-  let l:is_expr=( match(a:action,")[ ]*?[ ]*.*:") + 1 )
+  let l:has_pipe=( match(a:action,"|") + 1 )
   let l:is_keybind_not_layer=1
   let l:contains_vars=( match(a:action,"%[0-9]%") + 1 )
   let l:keybinding_opts=''
@@ -362,7 +446,7 @@ fu! KeyMap#Map(name, keybind, action, modes,...)
       " to specify mode
       let l:i = 0
       while l:i < len(l:keybind_alternatives)
-        let l:keybind=s:ensure_keybinding(l:keybind_alternatives[l:i])
+        let l:keybind=KeyMap#ensureKeybind(l:keybind_alternatives[l:i])
         let l:action=substitute(a:action,"<Keybind>",l:keybind,'g')
         let l:action=substitute(l:action,"<ActionName>",l:name,'g')
         let l:action=substitute(l:action,"<LayerName>",l:layer,'g')
@@ -375,10 +459,15 @@ fu! KeyMap#Map(name, keybind, action, modes,...)
   endif
   " for all modes  " 'i' 'n' 'v'
   for l:curr in l:modes
+    let l:recursive=0
+    if l:curr[0] == '~'
+      let l:recursive=1
+      let l:curr = l:curr[1:]
+    endif
     let l:i = 0
     while l:i < len(l:keybind_alternatives)
       " # Get the keys to bind
-      let l:keybind=s:ensure_keybinding(l:keybind_alternatives[l:i])
+      let l:keybind=KeyMap#ensureKeybind(l:keybind_alternatives[l:i])
       " # Get the mode descriptor used to bind the keys
       let l:mode_char=l:curr[0]
       " # Get or compute the action to bind to the key in the mode
@@ -410,8 +499,12 @@ fu! KeyMap#Map(name, keybind, action, modes,...)
           let l:action=s:replace_isubst(l:action, split(l:subst,l:sep),'%')
         endif
       endif
-      if l:is_expr
+      if l:has_pipe
+        let l:action=substitute(l:action, '\?|', '|','g')
+      endif
+      if match(l:action,"<expr>") == 0
         let l:keybinding_opts.='<expr> '
+        let l:action=substitute(l:action,'<expr>\s*','','')
         let l:action=substitute(l:action,'<','\\<','g')
         let l:postaction=substitute(l:postaction,'<','\\<','g')
       endif
@@ -431,15 +524,9 @@ fu! KeyMap#Map(name, keybind, action, modes,...)
         let l:autocmd = 'autocmd ' . l:autocmdopt . ' '
         let l:keybinding_opts = '<buffer>' . l:keybinding_opts 
       endif 
-      " # Map the keybind
-      if l:is_mappable_at_start
-        let l:mapaction = l:autocmd  . l:mode_char.'noremap ' .
-              \l:keybinding_opts . l:keybind . ' ' . l:action
-        exe l:mapaction
-      endif
       " # Register in the keybind layer
       " if !has_key(g:km_layer_keymapping,l:layer)
-        " let g:km_layer_keymapping[l:layer] = {}
+      " let g:km_layer_keymapping[l:layer] = {}
       " endif
       if !has_key(g:km_layer_keymapping[l:layer],l:mode_char)
         let g:km_layer_keymapping[l:layer][l:mode_char]={} 
@@ -447,11 +534,69 @@ fu! KeyMap#Map(name, keybind, action, modes,...)
       " -> Store keymap name, keybinding, action
       let g:km_layer_keymapping[l:layer][l:mode_char][l:keybind]=
             \[(l:i == 0 ? '':'~').l:name ,l:action,l:autocmd,l:keybinding_opts]
+            " l:i == 0 ? '':'~' avoid to describe keybind alternative
+      if l:recursive
+         let g:km_layer_keymapping[l:layer][l:mode_char][l:keybind]+=[1]
+      endif
+      " # Map the keybind
+      if l:is_mappable_at_start
+        let l:mapaction = l:autocmd  . l:mode_char.(l:recursive?'': 'nore').'map ' .
+              \l:keybinding_opts . l:keybind . ' ' . l:action
+        " echo l:mapaction
+        exe l:mapaction
+      endif
       let l:i += 1
     endwhile
   endfor
 endfu
 
+"@function KeyMap#export()
+" export for a faster boot and lighter memory usage
+" without dependencies
+" and to share your keymap
+fu! KeyMap#export()
+  let l:return=[]
+  let l:exportsep='-s-e-p-a-r-a-t-o-r-'
+  for l:klayer in keys(g:km_layer_keymapping)
+    let l:retlayer=[]
+    let l:layer=g:km_layer_keymapping[l:klayer]
+    for l:mode in keys(l:layer)
+      for l:key in keys(l:layer[l:mode])
+        let l:actiontable=l:layer[l:mode][l:key]
+        let l:desc='" '.l:actiontable[0]
+        let l:action=l:actiontable[1]
+        let l:autocmd=l:actiontable[2]
+        let l:keybinding_opts=l:actiontable[3]
+        let l:recursive=len(l:actiontable)>4
+        " keep lines joined to sort by l:desc
+        call add(l:retlayer,l:desc.l:exportsep.
+              \l:autocmd  . l:mode.(l:recursive?'': 'nore').'map ' .
+              \l:keybinding_opts . l:key . ' ' . l:action)
+      endfor 
+    endfor 
+    call sort(l:retlayer)
+    let l:mapping=[]
+    let l:prev_desc=''
+    " split \n and remove double descriptions
+    for l:l in l:retlayer
+      let [l:desc,l:km]=split(l:l,l:exportsep)
+      if l:prev_desc != l:desc
+        call add(l:mapping,l:desc)
+      endif
+      let l:prev_desc = l:desc
+      call add(l:mapping,l:km)
+    endfor
+    let l:layer_key_name=substitute(l:klayer,'[!?{}[\])(:.\/#^$-]','_','g')
+    if l:klayer != g:km_default_layername && len(l:mapping)
+      call add(l:return,'fu toggle_'.l:layer_key_name)
+      call extend(l:return,map(l:mapping,'"  ".v:val'))
+      call add(l:return,'endfu')
+    else 
+      call extend(l:return,l:mapping)
+    endif
+  endfor 
+  call append(line('.'), l:return)
+endfu
 " 
 " For mapping many keys with same autocmds
 fu! KeyMap#AddMapSet(shorcuts, ...)
@@ -489,12 +634,16 @@ function! KeyMap#Alias(alias, cmd, ...)
         \ escape(a:cmd,'"\').'" : "'.escape(a:alias,'"\').'")<Cr>'
 endfu
 
-"<F1> Q   "Cleared keys         " <nop> % n
-fu! s:ReadKeyFile(file)
-  " echo a:file
+" @function Keymap#Source([file])
+" Source [file] according to the |KeyMap-format|.
+fu! KeyMap#Source(file)
   let l:autocmdinfo=''
   let l:skip=0
   let l:skipdone=0
+  let l:substs = g:km_file_substs
+  if g:km_file_include_sid
+    call add(l:substs, ['<SID>',s:SNR(a:file),'g'])
+  endif
   for l:l in readfile(a:file)
     if len(l:l) && l:l !~ '^"'
       if !skipdone && l:l =~ '^finish\s*$'
@@ -506,6 +655,9 @@ fu! s:ReadKeyFile(file)
         let l:skipdone=1
         continue
       elseif !l:skip
+        for [l:s,l:t,l:o] in l:substs
+          let l:l=substitute(l:l,l:s,l:t,l:o)
+        endfor
         if l:l =~ '^\[.*]'
           let l:auend=match(l:l,']',1)
           let l:autocmdinfo=strpart(l:l,1,l:auend-1)
@@ -522,9 +674,23 @@ fu! s:ReadKeyFile(file)
       endif
     endif
   endfor
+  " for security issues, disable at end of each file
+  let g:km_file_substs=[]
+  let g:km_file_include_sid=0
 endfu
+let s:home=expand('~')
+function! s:SNR(file)
+  let l:file=substitute(a:file,'^'.s:home,'\\\\\\\~','')
+  let l:ret=substitute(
+      \ filter(split(execute('scriptnames'), "\n"),'v:val =~ "'.l:file.'"')[0],
+      \ '^\s*\(\d\+\).*$','\1',''
+      \)
+  return '<SNR>'.l:ret.'_' 
+endfun
 
-command! -nargs=1 KeyMap call s:ReadKeyFile(expand(<q-args>))
+" @command :KeyMap [file]
+" Source [file] according to the |KeyMap-format|. Use |Keymap#Source()|.
+command! -nargs=+ KeyMap call KeyMap#Source(expand(<q-args>))
 
 fu! s:ReadAliasLine(line,autocmdinfo)
   let l:alias_pos=match(a:line,'\s\S',2)
@@ -534,10 +700,17 @@ fu! s:ReadAliasLine(line,autocmdinfo)
   cal KeyMap#Alias(l:alias, l:cmd,a:autocmdinfo)
 endfu
 
+fu! s:matchstrpos(line, pattern,start)
+  let l:pos=match(a:line,a:pattern,a:start)
+  let l:str=matchstr(a:line,a:pattern,a:start)
+  let l:endpos=l:pos + len(l:str)
+  return [l:str, l:pos, l:endpos]
+endfu
+
 fu! s:ReadKeyLine(line,autocmdinfo)
   " echo a:line
   let l:keys_pos=match(a:line,'[^ ]',0)
-  let [l:comment,l:comment_pos,l:comment_end_pos]=matchstrpos(a:line,'".\?\S[^"]*"',l:keys_pos+1)
+  let [l:comment,l:comment_pos,l:comment_end_pos]=s:matchstrpos(a:line,'"[^>]\S[^"]*"',l:keys_pos+1)
   let l:modes_pos=match(a:line,' %\( \|$\)',l:comment_end_pos+1)
   let l:action_pos=match(a:line,'[^ ]',l:comment_end_pos+1)
   let l:keys=filter(
@@ -554,13 +727,14 @@ endfu
 
 fu! KeyMap#FunctionToKeyLine()
   "brute force conversion
-silent! s/call\?\s\+KeyMap#Map(\(['"]\)\(.*\)\1\s*,\s*\(['"]\)\(.*\)\3\s*,\s*\(['"]\)\(.*\)\5\s*,\s*\[\(.*\)\]\s*,\s*\(['"]\)\(.*\)\8\s*).*/[\9]\r\4 "\2" \6 % \7/
-silent! s/call\?\s\+KeyMap#Map(\(['"]\)\(.*\)\1\s*,\s*\[\(.*\)\]\s*,\s*\(['"]\)\(.*\)\4\s*,\s*\[\(.*\)\]\s*).*/\3 "\2" \5 % \6/
-silent! s/call\?\s\+KeyMap#Map(\(['"]\)\(.*\)\1\s*,\s*\(['"]\)\(.*\)\3\s*,\s*\(['"]\)\(.*\)\5\s*,\s*\[\(.*\)\]\s*).*/\4 "\2" \6 % \7/
-silent! s/call\?\s\+KeyMap#Alias(\(['"]\)\(.*\)\1\s*,\s*\(['"]\)\(.*\)\3\s*).*/alias \2 \4/
-silent! s/% \(.*\)\(['"]\)\(.*\)\2\s*,/% \1 \3/g
-silent! s/% \(.*\)\(['"]\)\(.*\)\2\s*,/% \1 \3/g
-silent! s/% \(.*\)\(['"]\)\(.*\)\2\s*,/% \1 \3/g
-silent! s/% \(.*\)\(['"]\)\(.*\)\2\s*/% \1 \3/
+  silent! s/call\?\s\+KeyMap#Map(\(['"]\)\(.*\)\1\s*,\s*\(['"]\)\(.*\)\3\s*,\s*\(['"]\)\(.*\)\5\s*,\s*\[\(.*\)\]\s*,\s*\(['"]\)\(.*\)\8\s*).*/[\9]\r\4 "\2" \6 % \7/
+  silent! s/call\?\s\+KeyMap#Map(\(['"]\)\(.*\)\1\s*,\s*\[\(.*\)\]\s*,\s*\(['"]\)\(.*\)\4\s*,\s*\[\(.*\)\]\s*).*/\3 "\2" \5 % \6/
+  silent! s/call\?\s\+KeyMap#Map(\(['"]\)\(.*\)\1\s*,\s*\(['"]\)\(.*\)\3\s*,\s*\(['"]\)\(.*\)\5\s*,\s*\[\(.*\)\]\s*).*/\4 "\2" \6 % \7/
+  silent! s/call\?\s\+KeyMap#Alias(\(['"]\)\(.*\)\1\s*,\s*\(['"]\)\(.*\)\3\s*).*/alias \2 \4/
+  silent! s/% \(.*\)\(['"]\)\(.*\)\2\s*,/% \1 \3/g
+  silent! s/% \(.*\)\(['"]\)\(.*\)\2\s*,/% \1 \3/g
+  silent! s/% \(.*\)\(['"]\)\(.*\)\2\s*,/% \1 \3/g
+  silent! s/% \(.*\)\(['"]\)\(.*\)\2\s*/% \1 \3/
 endfu
 
+let g:loaded_accessibility_keymap=1

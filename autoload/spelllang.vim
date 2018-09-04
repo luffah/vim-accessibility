@@ -1,8 +1,8 @@
-" KeyMap.vim -- Vim lib for automatic spell lang definition
+" spelllang.vim -- Vim lib for automatic spell lang definition
 " @Author:      luffah (luffah AT runbox com)
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2018-03-29
-" @Last Change: 2018-03-29
+" @Last Change: 2018-05-21
 " @Revision:    1
 if exists('g:loaded_accessibility_lang')
     finish
@@ -16,7 +16,7 @@ let s:langs=['ca', 'cs', 'de', 'en', 'es', 'fr', 'it', 'ja', 'ko', 'pt', 'ru', '
 " locally known locales
 call extend(s:langs, map(
       \split(globpath(&rtp, "spell/*\.spl"),"\n"),
-      \{i, v -> substitute(v,'\(.*/\)\(\l\{2}\)\..*','\2','')}))
+      \'substitute(v:val,''\(.*/\)\(\l\{2}\)\..*'',''\2'','''')'))
 
 let s:langs=uniq(sort(s:langs))
 
@@ -50,7 +50,7 @@ fu! s:SetSpellLang(filename,...)
     exe 'setlocal spelllang='.l:lang
     exe 'setlocal spell'
   elseif len(l:defaultlang)
-    exe 'setlocal spelllang='.l:lang
+    exe 'setlocal spelllang='.l:defaultlang
     exe 'setlocal spell'
   endif
 endfu

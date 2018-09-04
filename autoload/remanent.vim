@@ -4,27 +4,78 @@
 " @Created:     2018-03-26
 " @Last Change: 2018-03-29
 " @Revision:    1
+
 if exists('g:loaded_accessibility_remanent') || &compatible
     finish
 endif
-" Sticky shift in bepo keyboard."{{{
-let g:sticky_verbose = get(g:,'sticky_verbose',1)
-"unlet g:sticky_map
-let g:sticky_map = get(g:, 'sticky_map', {
+" remanent shift in bepo keyboard."{{{
+let g:remanent_verbose =get(g:,'remanent_verbose',1)
+
+" @global g:remanent_map
+" A dictionnary {'_modifier_':{'_key_':['_mode_',..]}} which
+" define the remanent keys.
+"     _modifier_ -> shift, ctrl, ctrl_shift
+"     _key_      -> any key to map
+"     _mode_     -> the mode 'i', 'v', 'c', 'o', 's'  (see |mapmode-|)
+"                   or 'nr' for replace operation (see |r|)
+let g:remanent_map = get(g:, 'remanent_map', {
       \'shift': { 'à':['i'], 'è':['c', 'o', 's','nr'], '<Space>':['n'] },
       \'ctrl': { 'àà':['i'], 'èè':['c', 'o', 's','nr'], '<Space><Space>':['n'] },
       \'ctrl_shift': { 'éè': ['i'] }
       \})
 
-for r in keys(g:sticky_map)
-  for k in keys(g:sticky_map[r])
-    for i in g:sticky_map[r][k]
-      let p=(len(i)>1 ? i[1:] : '')
-      exe i[0].'noremap <expr> '.p.k.' <SID>sticky_'.r.'("'.k.'","'.p.'")'
+" @function remanent#enable([[silent]])
+" Enable remanent keys. (map keybinds)
+" If [silent] is not provided or is 0, then |g:remanent_map| is shown.
+fu! remanent#enable(...)
+  if !get(a:000,0,0)
+    call statusui#HelpWin('*Remanent keys activated*',
+          \ split(substitute(substitute(execute('echo g:remanent_map'),"'",'"','g'),'},', "},\n",'g'),"\n"),
+          \ 'json'
+          \ )
+  endif
+  for r in keys(g:remanent_map)
+    for k in keys(g:remanent_map[r])
+      for i in g:remanent_map[r][k]
+        let p=(len(i)>1 ? i[1:] : '')
+        exe i[0].'noremap <expr> '.p.k.' <SID>remanent_'.r.'("'.k.'","'.p.'")'
+      endfor
     endfor
   endfor
-endfor
+  let g:remanent_enable=1
+endfu
 
+" @function remanent#disable([[silent]])
+" Disable remanent keys. (unmap keybinds)
+fu! remanent#disable()
+  for r in keys(g:remanent_map)
+    for k in keys(g:remanent_map[r])
+      for i in g:remanent_map[r][k]
+        let p=(len(i)>1 ? i[1:] : '')
+        silent! exe i[0].'unmap <expr> '.p.k
+      endfor
+    endfor
+  endfor
+  if !get(a:000,0,0)
+  call statusui#HelpWin('*Remanent keys disabled*',['.'.repeat('-',22).'.'],'json',2)
+  endif
+  let g:remanent_enable=0
+endfu
+
+" @function remanent#reset()
+" Disable and enable remanent keys. (remap keybinds)
+fu! remanent#reset()
+  call remanent#disable(1)
+  call remanent#enable(1)
+endfu
+
+
+
+" @global g:stick_shift_table
+" Dictionnary to which translate shift keys.
+" Default value is set for bépo keymap.
+"
+" This value shall be set at startup.
 let s:shift_table = get(g:,'stick_shift_table', {
       \ ',' : ';',
       \ '.' : ':', 
@@ -55,8 +106,8 @@ function! s:getshift(key,default)
   endif 
 endfunction
 
-function! s:sticky_shift(default, prepend)
-  if g:sticky_verbose
+function! s:remanent_shift(default, prepend)
+  if g:remanent_verbose
     echo '(Shift)'
   endif
   " let l:key = ''
@@ -109,13 +160,13 @@ function! s:tr_key(key)
 endfunction
 
 
-function! s:sticky_ctrl(default,prepend)
-  if g:sticky_verbose
+function! s:remanent_ctrl(default,prepend)
+  if g:remanent_verbose
     echo '<C-'
   endif
   let l:key = getchar()
   if len(l:key)
-    if g:sticky_verbose
+    if g:remanent_verbose
       echo '<C-'.s:tr_key(l:key).'>'
     endif
     exe 'call feedkeys("'.a:prepend.'\<C-'.s:tr_key(l:key).'>")'
@@ -126,14 +177,14 @@ function! s:sticky_ctrl(default,prepend)
   return ''
 endfunction
 
-function! s:sticky_ctrl_shift(default)
-  if g:sticky_verbose
+function! s:remanent_ctrl_shift(default)
+  if g:remanent_verbose
     echo '<C-'
   endif
   let l:key = getchar()
   if len(l:key)
     let l:key = s:tr_key(l:key)
-    if g:sticky_verbose
+    if g:remanent_verbose
       echo '<C-'.s:getshift(l:key, "S-".l:key).'>'
     endif
     exe 'call feedkeys("\<C-'.s:getshift(l:key, "S-".l:key).'>")'

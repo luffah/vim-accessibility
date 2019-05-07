@@ -2,23 +2,22 @@
                                                                *accessibility*
  >
            +---------------------+            ,-.  ,-.
-           |<C-x><C-V>  bla bla  |    ????   /  | /  |
-           |<C-W>J      bla      |          | 0 .  0 '.    ,.
+           |<C-x><C-V>  bla bla  |    ????   /  | /  | Chupaaka
+           |<C-W>J      bla      |          | 0 .  0 '.    ,. ka ka
            |________________HELP_|          |   ^     |  .'.'
            |fu#                  |          `.______.' .'.'
-           |~                    |      ___  / /_ \ \ _____  
+           |~                    |      ___  / /_ \ \ _____
            |"file.txt" [New file]|     /JJJJ'-'JJJ'-'JJJJJJ/
            +---------------------+    /JJJJJJJJJJJJJJJJJJJ/
                  ___/   \___          '------------------'
     
-    _(Cats doesn't need Vim, they only need a non-hostile environment.)_
+    _(Chupaaka doesn't need Vim, she need a non-hostile environment.)_
     
-
 <
 License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 Author(s):   luffah
-Revision:    1
-Last Change: 2018-05-21
+Revision:    2
+Last Change: 2019-05-07
 
 
 This project group usefull scripts to make Vim more accessible.
@@ -28,14 +27,61 @@ a kind user interface.
 ==============================================================================
 CONTENTS                                              *accessibility-contents*
 
-1. Globals                                             |accessibility-globals|
-2. Functions                                         |accessibility-functions|
-3. Commands                                           |accessibility-commands|
+1. Commands                                           |accessibility-commands|
+2. Globals                                             |accessibility-globals|
+3. Functions                                         |accessibility-functions|
 4. Custom settings                                   |accessibility-customize|
 5. File format                                      |accessibility-fileformat|
 
 ==============================================================================
+COMMANDS                                              *accessibility-commands*
+
+*Multitap*
+    Allow to use keypad as a multitap input (experimental)
+
+*:SetColorScheme* [colorscheme]
+    Activate colorscheme
+    and call -post-proc from |g:scheduled_colorscheme_plan|.
+    See also |g:scheduled_colorscheme_secure_change|.
+
+*:HourColorScheme*
+    Activate colorscheme corresponding
+    to the hour and the type of the current file,
+    then  call -post-proc
+    See |g:scheduled_colorscheme_plan|.
+
+*:NextColorScheme*
+    Shows colorschemes one by one.
+
+*:PrevColorScheme*
+    Shows colorschemes one by one (reversed).
+
+*:Layer* [layer_name]
+    Toggle [layer_name].
+
+*:Layers*
+    List possible values for |:Layer|.
+
+*:KeyMap* [file]
+    Source [file] according to the |KeyMap-format|. Use |Keymap#Source()|.
+
+
+==============================================================================
 GLOBALS                                                *accessibility-globals*
+
+*g:disable_accessibility_speak*
+    Define if speak plugin shall not be enabled at startup.
+    See |g:disable_accessibility_speak_keymap| too.
+    Default 0.
+
+*g:disable_accessibility_speak_keymap*
+    Define if speak shorcuts shall not be enabled at startup.
+    The Speak* commands still enabled.
+    Default 0.
+
+*g:disable_accessibility_colortheme*
+    Define if colorscheme automatic changes is not be enabled at startup.
+    Default 0.
 
 *g:remanent_enable*
     Define if remanent keys are enabled at startup. See |g:remanent_map|.
@@ -72,6 +118,12 @@ GLOBALS                                                *accessibility-globals*
          finish
          <A-Up>    "Compl.from file  " pum?"<UP>":"<C-x><C-i>"   %  i
          finish
+<
+
+*g:km_layer_status*
+    Layer status string.
+    If you customize your statusline your could need to add : >
+      let &statusline="%#ModeMsg#%{g:km_layer_status}%#{}#".&statusline
 <
 
 *g:km_mode_hash*
@@ -149,43 +201,13 @@ selection#vgetSelectedText()                   *selection#vgetSelectedText()*
     Return selected text (string) while visual mode is activated.
 
 selection#getSelectedText()                     *selection#getSelectedText()*
-    Return (visual) selected text (string) from normal mode.
+    Return selected text (string).
 
 selection#Status()                                       *selection#Status()*
     Return a string showing selection size according to its type:
     * if is full line (V), return (line width, selection height)
     * if is square (), return (selection width, selection height)
     * if is per character (v), return the number of characters selected
-
-
-==============================================================================
-COMMANDS                                              *accessibility-commands*
-
-*:SetColorScheme* [colorscheme]
-    Activate colorscheme
-    and call -post-proc from |g:scheduled_colorscheme_plan|.
-    See also |g:scheduled_colorscheme_secure_change|.
-
-*:HourColorScheme*
-    Activate colorscheme corresponding
-    to the hour and the type of the current file,
-    then  call -post-proc
-    See |g:scheduled_colorscheme_plan|.
-
-*:NextColorScheme*
-    Shows colorschemes one by one.
-
-*:PrevColorScheme*
-    Shows colorschemes one by one (reversed).
-
-*:Layer* [layer_name]
-    Toggle [layer_name].
-
-*:Layers*
-    List possible values for |:Layer|.
-
-*:KeyMap* [file]
-    Source [file] according to the |KeyMap-format|. Use |Keymap#Source()|.
 
 
 ==============================================================================

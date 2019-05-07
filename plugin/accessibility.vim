@@ -2,8 +2,8 @@
 " @Author:      luffah
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2018-03-29
-" @Last Change: 2018-05-21
-" @Revision:    1
+" @Last Change: 2019-05-07
+" @Revision:    2
 " @Files
 "   ../autoload/remanent.vim
 "   ../autoload/colortheme.vim
@@ -36,10 +36,6 @@ exe 'source '.s:path.'/autoload/KeyMap.vim'
 exe 'source '.s:path.'/autoload/spelllang.vim'
 exe 'source '.s:path.'/autoload/selection.vim'
 
-" @global g:accessibility_start
-" Define if speak plugin shall not be enabled at startup.
-" Default 0.
-
 " @global g:disable_accessibility_speak
 " Define if speak plugin shall not be enabled at startup.
 " See |g:disable_accessibility_speak_keymap| too.
@@ -51,7 +47,7 @@ exe 'source '.s:path.'/autoload/selection.vim'
 " Default 0.
 
 if !get(g:,'disable_accessibility_speak',0)
-   call speak#enable(!get(g:,'disable_accessibility_speak_keymap',0))
+   call speak#enable()
 endif
 
 " @global g:disable_accessibility_colortheme

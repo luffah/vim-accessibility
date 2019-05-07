@@ -2,8 +2,8 @@
 " @Author:      luffah (luffah AT runbox com)
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2018-03-26
-" @Last Change: 2018-03-30
-" @Revision:    1
+" @Last Change: 2019-05-07
+" @Revision:    2
 if exists('g:loaded_accessibility_speak') ||
   \ get(g:,'disable_accessibility_speak',0) ||
   \ &compatible
@@ -17,13 +17,10 @@ if has('win32')
    endfu
 else
   if !len(split(system('which spd-say'),"\n"))
-    fu speak#enable(n)
-      if get(g:,'speak_dependencies_alert', 1)
+    fu speak#enable()
+      if get(g:,'speak_dependencies_alert', 0)
         echomsg "'speech-dispatcher' is required for using the accessibility-speak plugin."
         echomsg "'mbrola' and 'gnome-orca' are recommended."
-        echomsg "You can disable this message by adding"
-        echomsg "let g:speak_dependencies_alert=0"
-        echomsg "in your vimrc."
         echomsg "You can disable accessibility-speak by adding"
         echomsg "let g:disable_accessibility_speak=1"
       endif

@@ -12,17 +12,26 @@ let s:LargeFileMsg = 'The file is larger than '
       \. (g:LargeFileSize / 1024 / 1024)
       \. ' MB, so some options are changed (see g:LargeFileSize).'
 
-let g:SmallFileActionsOpen=['set eventignore-=Filetype']
-let g:SmallFileActionsEnter=[]
-let g:MediumFileActionsOpen=['set eventignore-=Filetype']
-let g:MediumFileActionsEnter=[]
-let g:LargeFileActionsEnter=[]
+let g:SmallFileActionsOpen=[
+      \ 'set eventignore-=Filetype',
+      \]
+let g:SmallFileActionsEnter=[
+      \]
+let g:MediumFileActionsOpen=[
+      \ 'set eventignore-=Filetype',
+      \ 'setlocal noincsearch',
+      \]
+let g:MediumFileActionsEnter=[
+      \]
 let g:LargeFileActionsOpen=[
       \ 'set eventignore+=Filetype',
       \ 'setlocal bufhidden=unload',
       \ 'setlocal buftype=nowrite',
+      \ 'setlocal noincsearch',
       \ 'setlocal undolevels=-1',
       \ 'au VimEnter * echo "'.s:LargeFileMsg.'"'
+      \]
+let g:LargeFileActionsEnter=[
       \]
 
 fu! s:LargeFileSupport(...)

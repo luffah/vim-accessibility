@@ -47,7 +47,7 @@ exe 'source '.s:path.'/autoload/selection.vim'
 " Default 0.
 
 if !get(g:,'disable_accessibility_speak',0)
-   call speak#enable()
+   call speak#enable(1)
 endif
 
 " @global g:disable_accessibility_colortheme

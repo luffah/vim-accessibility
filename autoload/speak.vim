@@ -12,12 +12,12 @@ if exists('g:loaded_accessibility_speak') ||
 endif
 let g:loaded_accessibility_speak=1
 if has('win32')
-   fu speak#enable(n)
+   fu speak#enable(enkm)
      " not supported yet
    endfu
 else
   if !len(split(system('which spd-say'),"\n"))
-    fu speak#enable()
+    fu speak#enable(enkm)
       if get(g:,'speak_dependencies_alert', 0)
         echomsg "'speech-dispatcher' is required for using the accessibility-speak plugin."
         echomsg "'mbrola' and 'gnome-orca' are recommended."

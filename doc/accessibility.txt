@@ -101,6 +101,22 @@ GLOBALS                                                *accessibility-globals*
     
     This value shall be set at startup.
 
+*g:scheduled_colorscheme_plan*
+    Dictionnary to configure the colorscheme changes raised by |HourColorScheme|.
+    It contains lists of colorscheme that partition the day.
+    (e.g. : ['am-colorscheme','pm-colorscheme'])
+    Keys for defining the list of colorscheme (linked to version of Vim )
+    are 'gui' (GVim...), 'term' (vim, nvim-qt..) and 'gui-post-proc',
+    'term-post-proc' to customize the theme.
+
+*g:background*
+    Usefull for special weather cases, like heat waves to use 'dark' or 'light'
+    background used by |HourColorScheme|.
+
+*g:colortheme_hour*
+    Usefull for special weather cases, like heat waves to lock hour (0-23) used
+    by |HourColorScheme|.
+
 *g:km_file_include_sid*
     To set before using |:Keymap| in order to use script local variable
     and function.
@@ -193,6 +209,11 @@ KeyMap#Map(name, keybinds, action, modes_and_post_actions)     *KeyMap#Map()*
       and post action         e.g. 'i','Ia','n','v' 
     e.g. 'ia' -> for insert mode do the keybinding a reenter in insert mode with 'a' 
     e.g. 'i<Left>' -> for insert mode do the keybinding and move cursor to left
+
+KeyMap#export()                                             *KeyMap#export()*
+    export for a faster boot and lighter memory usage
+    without dependencies
+    and to share your keymap
 
 Keymap#Source([file])                                       *Keymap#Source()*
     Source [file] according to the |KeyMap-format|.

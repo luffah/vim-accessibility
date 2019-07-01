@@ -52,6 +52,13 @@ endif
 let s:default_term_post='"Taking the colorscheme as is'
 let s:default_gui_post=s:default_term_post
 
+" @global g:scheduled_colorscheme_plan
+"Dictionnary to configure the colorscheme changes raised by |HourColorScheme|.
+"It contains lists of colorscheme that partition the day.
+" (e.g. : ['am-colorscheme','pm-colorscheme'])
+"Keys for defining the list of colorscheme (linked to version of Vim )
+" are 'gui' (GVim...), 'term' (vim, nvim-qt..) and 'gui-post-proc',
+" 'term-post-proc' to customize the theme.
 let g:scheduled_colorscheme_plan=get(g:,'scheduled_colorscheme_plan', {})
 if has('gui_running')
   let s:scheduled_colorscheme=get(g:scheduled_colorscheme_plan,'gui',{})
@@ -61,6 +68,15 @@ else
   let s:scheduled_colorscheme=get(g:scheduled_colorscheme_plan,'term',{})
   let s:scheduled_colorscheme_post_proc=get(g:scheduled_colorscheme_plan,'term-post',s:default_term_post)
 endif
+
+
+" @global g:background
+"Usefull for special weather cases, like heat waves to use 'dark' or 'light'
+"background used by |HourColorScheme|.
+
+" @global g:colortheme_hour
+"Usefull for special weather cases, like heat waves to lock hour (0-23) used
+"by |HourColorScheme|.
 
 let s:all_colorschemes=map(
       \split(globpath(&rtp, 'colors/*.vim'),"\n"),
@@ -80,6 +96,7 @@ endfu
 fu! s:SetColorScheme(colorscheme)
   let l:curr=split(execute("colorscheme"),'\n')[0]
   let l:colorscheme_and_bg=split(a:colorscheme,"/")
+  let l:bg_mode = ''
   if l:colorscheme_and_bg[0] == l:curr
     if len(l:colorscheme_and_bg) > 1 && l:colorscheme_and_bg[1] != &background
       exe 'set background='.l:colorscheme_and_bg[1]
@@ -96,15 +113,19 @@ fu! s:SetColorScheme(colorscheme)
       endif
       let l:cmd=""
       exe 'colorscheme '.l:colorscheme_and_bg[0]
-      if len(l:colorscheme_and_bg) > 1
-        exe 'set background='.l:colorscheme_and_bg[1]
-      endif
+      let l:bg_mode = l:colorscheme_and_bg[1]
     catch /E185:/
       echo 'Error: colorscheme not found:' a:colorscheme
     endtry
     if len(s:scheduled_colorscheme_post_proc)
       exe s:scheduled_colorscheme_post_proc
     endif
+  endif
+  if exists('g:background')
+    let l:bg_mode=g:background
+  endif
+  if len(l:bg_mode) > 1
+    exe 'set background='.l:bg_mode
   endif
 endfu
 
@@ -114,13 +135,17 @@ fu! s:HourColor(ft)
     let l:l=len(s:scheduled_colorscheme[l:currft])
     if l:l
       let l:n=(24.0/l:l)
-      let l:i=float2nr(trunc(str2nr(strftime('%H'))/l:n))
+      if exists('g:colortheme_hour')
+        let l:i=float2nr(trunc(str2nr(g:colortheme_hour)/l:n))
+      else
+        let l:i=float2nr(trunc(str2nr(strftime('%H'))/l:n))
+      endif
       call s:SetColorScheme(s:scheduled_colorscheme[l:currft][l:i])
     endif
   endif
 endfu
 
-" @function colortheme#enable()
+"@function colortheme#enable()
 " Enable |SetColorScheme|, |HourColorScheme|,
 "        |NextColorScheme|, |PrevColorScheme|.
 " Enable automatic theme change.

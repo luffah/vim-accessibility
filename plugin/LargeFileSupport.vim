@@ -9,7 +9,7 @@ let g:LargeFileSize = 1024 * 1024 * 10
 let g:MediumFileSize = 1024 * 24
 
 let s:LargeFileMsg = 'The file is larger than '
-      \. (g:LargeFileSize / 1024 / 1024)
+      \. (g:LargeFileSize / 1048576)
       \. ' MB, so some options are changed (see g:LargeFileSize).'
 
 let g:SmallFileActionsOpen=[
@@ -20,6 +20,9 @@ let g:SmallFileActionsEnter=[
 let g:MediumFileActionsOpen=[
       \ 'set eventignore-=Filetype',
       \ 'setlocal noincsearch',
+      \ 'setlocal foldmethod=manual',
+      \ 'setlocal nofoldenable',
+      \ 'setlocal undolevels=64',
       \]
 let g:MediumFileActionsEnter=[
       \]
@@ -28,6 +31,8 @@ let g:LargeFileActionsOpen=[
       \ 'setlocal bufhidden=unload',
       \ 'setlocal buftype=nowrite',
       \ 'setlocal noincsearch',
+      \ 'setlocal foldmethod=manual',
+      \ 'setlocal nofoldenable',
       \ 'setlocal undolevels=-1',
       \ 'au VimEnter * echo "'.s:LargeFileMsg.'"'
       \]

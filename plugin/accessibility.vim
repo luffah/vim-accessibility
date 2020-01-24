@@ -36,24 +36,24 @@ exe 'source '.s:path.'/autoload/KeyMap.vim'
 exe 'source '.s:path.'/autoload/spelllang.vim'
 exe 'source '.s:path.'/autoload/selection.vim'
 
-" @global g:disable_accessibility_speak
-" Define if speak plugin shall not be enabled at startup.
-" See |g:disable_accessibility_speak_keymap| too.
+" @global g:enable_accessibility_speak
+" Define if speak plugin shall be enabled at startup.
+" See |g:enable_accessibility_speak_keymap| too.
 " Default 0.
 
-" @global g:disable_accessibility_speak_keymap
-" Define if speak shorcuts shall not be enabled at startup.
+" @global g:enable_accessibility_speak_keymap
+" Define if speak shorcuts shall be enabled at startup.
 " The Speak* commands still enabled.
 " Default 0.
 
-if !get(g:,'disable_accessibility_speak',0)
-   call speak#enable(1)
+if get(g:,'enable_accessibility_speak', 0)
+   call speak#enable(get(g:,'enable_accessibility_speak_keymap', 0))
 endif
 
-" @global g:disable_accessibility_colortheme
-" Define if colorscheme automatic changes is not be enabled at startup.
+" @global g:enable_accessibility_colortheme
+" Define if colorscheme automatic changes is enabled at startup.
 " Default 0.
-if !get(g:,'disable_accessibility_colortheme',0)
+if get(g:,'enable_accessibility_colortheme', 0)
   call colortheme#enable()
 endif
 
@@ -61,10 +61,9 @@ endif
 " Allow to use keypad as a multitap input (experimental)
 command! Multitap call predictive#multitap_mode()
 
-" @global g:remanent_enable
+" @global g:enable_accessibily_remanent
 " Define if remanent keys are enabled at startup. See |g:remanent_map|.
 " Default 0.
-let g:remanent_enable=get(g:,'enable',0)
-if g:remanent_enable
+if get(g:,'enable_accessibility_remanent',0)
   call remanent#enable(1)
 endif

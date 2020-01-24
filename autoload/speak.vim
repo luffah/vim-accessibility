@@ -5,7 +5,7 @@
 " @Last Change: 2019-05-07
 " @Revision:    2
 if exists('g:loaded_accessibility_speak') ||
-  \ get(g:,'disable_accessibility_speak',0) ||
+  \ get(g:,'enable_accessibility_speak', 0) ||
   \ &compatible
   finish
   "unlet g:speak_layer_keymap
@@ -13,7 +13,7 @@ endif
 let g:loaded_accessibility_speak=1
 if has('win32')
    fu speak#enable(enkm)
-     " not supported yet
+     echomsg "os not supported"
    endfu
 else
   if !len(split(system('which spd-say'),"\n"))
@@ -21,8 +21,6 @@ else
       if get(g:,'speak_dependencies_alert', 0)
         echomsg "'speech-dispatcher' is required for using the accessibility-speak plugin."
         echomsg "'mbrola' and 'gnome-orca' are recommended."
-        echomsg "You can disable accessibility-speak by adding"
-        echomsg "let g:disable_accessibility_speak=1"
       endif
     endfu
     finish
@@ -178,6 +176,7 @@ function! WordAfter(line,col,endpattern,finalpattern)
 endfu
 
 
+let s:keymap_enabled=0
 function!  speak#enable(enablekeymap)
   command! -nargs=? SpeakLine  silent! call speak#(getline('.'),'', <q-args>)
   command! -nargs=? SpeakLinePunc silent! call speak#(getline('.'),'-m all', <q-args>)
@@ -200,7 +199,47 @@ function!  speak#enable(enablekeymap)
   command! SpeakYanked silent! call speak#(getreg('"'), '-m all')
 
   if a:enablekeymap
+    let s:keymap_enabled=1
     call s:loadkeymap()
+  endif
+endfunction
+
+function!  speak#disable()
+  delcommand! SpeakLine
+  delcommand! SpeakLinePunc
+  delcommand! SpeakClear
+  delcommand! SpeakExpand
+  delcommand! SpeakReg
+  delcommand! SpeakCmdOutput
+  delcommand! SpeakChar
+  delcommand! SpeakCharI
+  delcommand! SpeakSearchWord
+  delcommand! SpeakMatches
+  delcommand! SpeakMatchesNumber
+  delcommand! SpeakFile
+  delcommand! SpeakFileName
+  delcommand! SpeakLineNum
+  delcommand! SpeakColNum
+  delcommand! SpeakWORD
+  delcommand! SpeakWORDPunc
+  delcommand! SpeakWord
+  delcommand! SpeakYanked
+
+  if s:keymap_enabled
+    call s:unloadkeymap()
+    let s:keymap_enabled=0
+  endif
+endfunction
+
+function! s:unloadkeymap()
+  for [l:key,l:action] in items(g:speak_global_keymap)
+    exe 'unmap '.l:key
+  endfor
+  for [l:key,l:action] in items(g:speak_leader_keymap)
+    exe 'unmap '.g:speak_leader_key.l:key
+  endfor
+  if g:km_active_layer = '~Speak'
+    call KeyMap#ToggleLayer('')
   endif
 endfunction
 
@@ -209,7 +248,7 @@ function! s:loadkeymap()
     cal KeyMap#Map('(speak)'    , l:key , l:action , ['n'])
   endfor
   for [l:key,l:action] in items(g:speak_leader_keymap)
-    cal KeyMap#Map('(speak)'    , g:speak_layer_key.l:key , l:action , ['n'])
+    cal KeyMap#Map('(speak)'    , g:speak_leader_key.l:key , l:action , ['n'])
   endfor
   cal KeyMap#Map('~Speak'    , g:speak_layer_key , '<Layer>' , ['n'])
   cal KeyMap#Map('~Speak:Exit'    , g:speak_layer_key , '<ExitLayer>' , ['n'])

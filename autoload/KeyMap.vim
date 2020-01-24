@@ -8,6 +8,7 @@ if exists('g:loaded_accessibility_keymap') || &compatible
     "finish
 endif
 
+let g:KeyMap_print_mode=0
 " @fileformat *KeyMap-format*
 " Given :
 "  * keybind(s) is a list of keybinds (separated by a ' ')
@@ -97,9 +98,6 @@ let g:km_layer_desc_renderer=get(g:,'km_layer_desc_renderer',{})
 
 " 1 -> show explanation for alternatives keys
 let g:km_document_alternatives = get(g:, 'km_document_alternatives', 0)
-
-" add layer to the status
-let &statusline="%#ModeMsg#%{g:km_layer_status}%#{}#".&statusline
 
 " @global g:km_mode_hash
 " All known modes, shall not be set before the plugin is loaded
@@ -345,7 +343,7 @@ endfu
 
 " @command :Layer [layer_name]
 " Toggle [layer_name].
-command! -nargs=* -complet=customlist,<SID>LayerNameComplete Layer cal s:ToggleLayer(<q-args>) 
+command! -nargs=* -complet=customlist,<SID>LayerNameComplete Layer cal KeyMap#ToggleLayer(<q-args>) 
 
 " @command :Layers
 " List possible values for |:Layer|.
@@ -542,7 +540,6 @@ fu! KeyMap#Map(name, keybind, action, modes,...)
       if l:is_mappable_at_start
         let l:mapaction = l:autocmd  . l:mode_char.(l:recursive?'': 'nore').'map ' .
               \l:keybinding_opts . l:keybind . ' ' . l:action
-        " echo l:mapaction
         exe l:mapaction
       endif
       let l:i += 1
@@ -690,7 +687,7 @@ endfun
 
 " @command :KeyMap [file]
 " Source [file] according to the |KeyMap-format|. Use |Keymap#Source()|.
-command! -nargs=+ KeyMap call KeyMap#Source(expand(<q-args>))
+command! -complete=file -nargs=+ KeyMap call KeyMap#Source(expand(<q-args>))
 
 fu! s:ReadAliasLine(line,autocmdinfo)
   let l:alias_pos=match(a:line,'\s\S',2)

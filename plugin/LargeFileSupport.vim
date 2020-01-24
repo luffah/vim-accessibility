@@ -13,21 +13,22 @@ let s:LargeFileMsg = 'The file is larger than '
       \. ' MB, so some options are changed (see g:LargeFileSize).'
 
 let g:SmallFileActionsOpen=[
-      \ 'set eventignore-=Filetype',
+      \ 'setlocal eventignore-=Filetype',
       \]
 let g:SmallFileActionsEnter=[
       \]
 let g:MediumFileActionsOpen=[
-      \ 'set eventignore-=Filetype',
+      \ 'setlocal eventignore-=Filetype',
       \ 'setlocal noincsearch',
       \ 'setlocal foldmethod=manual',
       \ 'setlocal nofoldenable',
-      \ 'setlocal undolevels=64',
+      \ 'setlocal bufhidden=unload',
       \]
+      " \ 'setlocal undolevels=64',
 let g:MediumFileActionsEnter=[
       \]
 let g:LargeFileActionsOpen=[
-      \ 'set eventignore+=Filetype',
+      \ 'setlocal eventignore+=Filetype',
       \ 'setlocal bufhidden=unload',
       \ 'setlocal buftype=nowrite',
       \ 'setlocal noincsearch',
@@ -51,7 +52,6 @@ fu! s:LargeFileSupport(...)
   let l:size = ((b:filesize > g:LargeFileSize
         \ || b:filesize == -2) ? 'Large' :
         \ (b:filesize > g:MediumFileSize ? 'Medium' : 'Small'))
-  echo 'call s:ProcessCommandList(g:'.l:size.'FileActions'.l:event.')'
   exe 'call s:ProcessCommandList(g:'.l:size.'FileActions'.l:event.')'
 endfu
 

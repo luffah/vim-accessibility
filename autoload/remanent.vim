@@ -8,7 +8,8 @@
 if exists('g:loaded_accessibility_remanent') || &compatible
     finish
 endif
-" remanent shift in bepo keyboard."{{{
+" remanent shift in bepo keyboard.
+"{{{
 let g:remanent_verbose =get(g:,'remanent_verbose',1)
 
 " @global g:remanent_map

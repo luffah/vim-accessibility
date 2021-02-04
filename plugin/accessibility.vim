@@ -1,4 +1,4 @@
-" accessiblity.vim -- Vim accessible for every human
+" accessiblity.vim -- Vim accessibility experiment 
 " @Author:      luffah
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2018-03-29
@@ -13,29 +13,20 @@
 "   #../autoload/speak.vim
 "   #../autoload/statusui.vim
 " @AsciiArt
-"        +---------------------+            ,-.  ,-.
-"        |<C-x><C-V>  bla bla  |    ????   /  | /  | Chupaaka
-"        |<C-W>J      bla      |          | 0 .  0 '.    ,. ka ka
-"        |________________HELP_|          |   ^     |  .'.'
-"        |fu#                  |          `.______.' .'.'
-"        |~                    |      ___  / /_ \ \ _____
-"        |"file.txt" [New file]|     /JJJJ'-'JJJ'-'JJJJJJ/
-"        +---------------------+    /JJJJJJJJJJJJJJJJJJJ/
-"              ___/   \___          '------------------'
-"
-" _(Chupaaka doesn't need Vim, she need a non-hostile environment.)_
-"
+"             ,/,/,/,/
+" V   ? ? ? ,/       ,/  ? ?
+" I         | 0 .  0 '|)
+" M         |   ^    '|
+"       ww, `.______.'   ,ww 
+"        \\_______\ \_____||
+"       ,,,,,,,,,,,,,,,,,,,,
+"      /ooo oooooo    ooooo/
+"     /ooo ooooooooooooooo/
+"    /ooo ooooooooooooooo/
+"    ''''''''''''''''''''
 " @Overview
-" 
-" This project group usefull scripts to make Vim more accessible.
-" The scripts themselves are not the easier to use, but allow to prepare
-" a kind user interface.
+" Set of scripts attempting to implement accessibility features with Vim.
 "
-let s:path=expand('<sfile>:p:h:h')
-exe 'source '.s:path.'/autoload/KeyMap.vim'
-exe 'source '.s:path.'/autoload/spelllang.vim'
-exe 'source '.s:path.'/autoload/selection.vim'
-
 " @global g:enable_accessibility_speak
 " Define if speak plugin shall be enabled at startup.
 " See |g:enable_accessibility_speak_keymap| too.
@@ -56,10 +47,6 @@ endif
 if get(g:,'enable_accessibility_colortheme', 0)
   call colortheme#enable()
 endif
-
-" @command Multitap
-" Allow to use keypad as a multitap input (experimental)
-command! Multitap call predictive#multitap_mode()
 
 " @global g:enable_accessibily_remanent
 " Define if remanent keys are enabled at startup. See |g:remanent_map|.

@@ -41,11 +41,7 @@ fu! s:strpart(l,b,...)
   let l:ret=exists('a:1')?l:l[a:b:a:1]:l:l[a:b:]
   return join(l:ret,'')
 endfu
-"echo   strpart("alpharrrr du centaure",3,5)
-"echo s:strpart("alpharrrr du centaure",3,7)
-"echo   strpart("alpha½¾¿À du centaure",3,5)
-"echo s:strpart("alpha½¾¿À du centaure",3,7)
-"finish
+
 fu! s:getTextInRange(lstart,cstart,lend,cend)
   if (a:lstart < a:lend)
     let l:la=a:lstart
@@ -108,14 +104,14 @@ fu! selection#Status()
       let l:cv=virtcol('v')
       let l:ci=virtcol('.')
       if (l:mode==?"")
-        let l:ret=' ['.(abs(l:ci-l:cv)+1).','.(abs(l:li-l:lv)+1).']'
+        let l:ret='['.(abs(l:ci-l:cv)+1).','.(abs(l:li-l:lv)+1).']'
       elseif (l:mode==#"V")
-        let l:ret=' ['.(virtcol('$')-1).','.(abs(l:li-l:lv)+1).']'
+        let l:ret='['.(virtcol('$')-1).','.(abs(l:li-l:lv)+1).']'
       elseif (l:mode==#'v')
         if l:li == l:lv
-          let l:ret=' ['.(abs(l:ci-l:cv)+1).'ch]'
+          let l:ret='['.(abs(l:ci-l:cv)+1).'ch]'
         else
-          let l:ret=' ['.len(s:getTextInRange(l:lv,l:cv,l:li,l:ci)).'ch]'
+          let l:ret='['.len(s:getTextInRange(l:lv,l:cv,l:li,l:ci)).'ch]'
         endif
       endif
     endif

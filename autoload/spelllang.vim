@@ -12,6 +12,7 @@ let s:syslang=strpart(expand("$LANG"),0,2)
 
 " most people have one of this
 let s:langs=['ca', 'cs', 'de', 'en', 'es', 'fr', 'it', 'ja', 'ko', 'pt', 'ru', 'zh']
+let s:langdir=['i18n', 'lang', 'locale']
 
 " locally known locales
 call extend(s:langs, map(
@@ -26,7 +27,8 @@ fu! s:GetSpellLang(filename)
         \( match(a:filename,'/') == -1 ? getcwd().'/' : '' ). a:filename,'/')
   let l:file=remove(l:path,-1)
   let l:nblp=len(l:path) - 1
-  let l:localepos=match(l:path,'locale.\?')
+  let l:islangdir=(index(s:langdir, l:path[-1]) > -1)
+  let l:localepos=match(l:path,'locale.\?') 
   let l:langpos=match(l:path,'^\l\{2}$',l:localepos+1)
   if l:langpos > -1 && l:langpos <= l:nblp && l:langpos > l:nblp - 2
     let l:lang=l:path[l:langpos]
@@ -37,6 +39,9 @@ fu! s:GetSpellLang(filename)
     endif
   endif
   if l:lang =~ '^\l\{2}\(_\u\{2}\)\?$' && match(s:langs,'^'.l:lang)
+    if !l:islangdir && !match(l:path, '/'.l:lang.'/')
+      return ''
+    endif
     return l:lang
   else
     return ''

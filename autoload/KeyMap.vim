@@ -152,13 +152,13 @@ let g:km_status_substitions={
       \}
 
 " If you change one of these you shall modify g:km_actions_substitutions
-let g:km_layer_toggle = "<Layer>"
-let g:km_layer_exit = "<ExitLayer>"
-let g:km_layer_oneshot = "<OneShot"
+let s:km_layer_toggle = "<Layer>"
+let s:km_layer_exit = "<ExitLayer>"
+let s:km_layer_oneshot = "<OneShot"
 let g:km_actions_substitutions={
-      \'<OneShot=\(\a\+\)>': "<Esc>:call KeyMap#OneShot('<ActionName>','<Mode>','\\1')<Cr>",
-      \'<Layer>' : "<Esc>:call KeyMap#ToggleLayer('<ActionName>')<Cr>",
-      \'<ExitLayer>': "<Esc>:call KeyMap#ToggleLayer('<LayerName>')<Cr>"
+      \ s:km_layer_oneshot.'=\(\a\+\)\((\(\a\+\))\)\?>': "<Esc>:call KeyMap#OneShot('<ActionName>','<Mode>','\\1', '\\3')<Cr>",
+      \ s:km_layer_toggle : "<Esc>:call KeyMap#ToggleLayer('<ActionName>')<Cr>",
+      \ s:km_layer_exit : "<Esc>:call KeyMap#ToggleLayer('<LayerName>')<Cr>"
       \}
 
 
@@ -352,19 +352,33 @@ fu! s:LayerNameComplete(A,L,P)
   return keys(g:km_layer_keymapping)
 endfunction
 
-fu! KeyMap#OneShot(layer,mode,commandkey)
+fu! KeyMap#OneShot(layer,mode,commandkey,...)
   " !! : only work for one char keybind
   " !! : doesn't allow keymapping advanced option (autocommand)
   let l:layer_km=get(g:km_layer_keymapping,a:layer, 0)
+  let l:pres_cmd=''
+  if len(a:000)
+    let l:pres_cmd = a:1
+  endif
   " let l:prev_layer=g:km_active_layer
   " let g:km_active_layer=a:layer
-  if !empty(l:layer_km)
-    echo 'print layer'
+  echo a:layer.' ('.a:commandkey.')'
+  if len(l:pres_cmd)
+    try
+      exe l:pres_cmd
+    catch
+      echo "no proposal found"
+      return
+    endtry
+  endif
+  let l:is_selection=!(empty(l:layer_km) || empty(get(l:layer_km, 1, {0:0})))
+  if l:is_selection
     cal KeyMap#PrintLayer(a:layer)
   endif
   let l:c=nr2char(getchar())
+  redraw
   let l:action=l:c
-  if !empty(l:layer_km)
+  if l:is_selection
     if has_key(l:layer_km, a:mode) && has_key(l:layer_km[a:mode],l:c)
       let l:actiontable=l:layer_km[a:mode][l:c]
       let l:action=l:actiontable[1]
@@ -419,14 +433,14 @@ fu! KeyMap#Map(name, keybind, action, modes,...)
   let l:name=a:name
   if l:is_mappable_at_start
     let l:layer=g:km_default_layername
-    if ( match(a:action, g:km_layer_toggle) > -1 )
+    if ( match(a:action, s:km_layer_toggle) > -1 )
       let l:action=s:do_subst(a:action, g:km_actions_substitutions)
       let l:is_keybind_not_layer=0
       let s:last_layer=a:name
       if !has_key(g:km_layer_keymapping,a:name)
         let g:km_layer_keymapping[a:name] = {}
       endif
-    elseif ( match(a:action, g:km_layer_oneshot) > -1 )
+    elseif ( match(a:action, s:km_layer_oneshot) > -1 )
       let l:action=s:do_subst(a:action, g:km_actions_substitutions)
       let l:is_keybind_not_layer=0
       let s:last_layer=a:name

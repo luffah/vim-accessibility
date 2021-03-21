@@ -31,10 +31,9 @@
 " The scripts themselves are not the easier to use, but allow to prepare
 " a kind user interface.
 "
-let s:path=expand('<sfile>:p:h:h')
-exe 'source '.s:path.'/autoload/KeyMap.vim'
-exe 'source '.s:path.'/autoload/spelllang.vim'
-exe 'source '.s:path.'/autoload/selection.vim'
+" (no need to do these lines ... because this is in autoload dir)
+"let s:path=expand('<sfile>:p:h:h')
+"exe 'source '.s:path.'/autoload/selection.vim'
 
 " @global g:enable_accessibility_speak
 " Define if speak plugin shall be enabled at startup.

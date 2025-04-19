@@ -3,10 +3,9 @@
 <img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png"></a>
 <a rel="license" href="./LICENSE"><img src="https://www.gnu.org/graphics/gplv3-88x31.png" alt="License GPLv3"></a>
 
-# Vim accessible for every human
-_(Cats doesn't need Vim, they only need a non-hostile environment.)_
+# Set of scripts attempting to implement accessibility features
 
-This project group all the things needed to make Vim more accessible for people.
+This project group things intended to make Vim more accessible for people.
 * Remanent keys : for keeping your pinkies safe<br>
   ```vim
     " Map `<Space>` to be the remanent key for Shift, and `<Space><Space>` to be the remanent key for Ctrl.

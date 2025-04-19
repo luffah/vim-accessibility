@@ -5,10 +5,9 @@
 " @Last Change: 2019-05-07
 " @Revision:    2
 if exists('g:loaded_accessibility_speak') ||
-  \ get(g:,'enable_accessibility_speak', 0) ||
+  \ ! get(g:,'enable_accessibility_speak', 0) ||
   \ &compatible
   finish
-  "unlet g:speak_layer_keymap
 endif
 let g:loaded_accessibility_speak=1
 if has('win32')
@@ -258,5 +257,3 @@ function! s:loadkeymap()
     endfor
   endfor
 endfunction
-
-

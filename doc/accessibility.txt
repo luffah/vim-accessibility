@@ -1,24 +1,9 @@
 *accessibility.vim*    Vim accessibility experiment 
                                                                *accessibility*
- >
-
-              .,.,.,.,.,.,
-             ((~)~\~\~\))))
-             ((/       ,)))
-             (((0    0 '|))
-             ((|       '|))
-          ww,  '______.'   ,ww 
-           \\_______\ \_____||
-          ,,,,,,,,,,,,,,,,,,,,
-         /ooo oooooo    ooooo/
-        /ooo ooooooooooooooo/
-       /ooo ooooooooooooooo/
-       ''''''''''''''''''''
-<
 License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 Author(s):   luffah
 Revision:    2
-Last Change: 2019-05-07
+Last Change: 2026-05-14
 
 Set of scripts attempting to implement accessibility features with Vim.
 
@@ -48,31 +33,16 @@ GLOBALS                                                *accessibility-globals*
     Define if colorscheme automatic changes is enabled at startup.
     Default 0.
 
-*g:enable_accessibily_remanent*
-    Define if remanent keys are enabled at startup. See |g:remanent_map|.
-    Default 0.
-
-*g:remanent_map*
-    A dictionnary {'_modifier_':{'_key_':['_mode_',..]}} which
-    define the remanent keys.
-        _modifier_ -> shift, ctrl, ctrl_shift
-        _key_      -> any key to map
-        _mode_     -> the mode 'i', 'v', 'c', 'o', 's'  (see |mapmode-|)
-                      or 'nr' for replace operation (see |r|)
-
-*g:stick_shift_table*
-    Dictionnary to which translate shift keys.
-    Default value is set for bépo keymap.
-    
-    This value shall be set at startup.
-
 *g:scheduled_colorscheme_plan*
     Dictionnary to configure the colorscheme changes raised by |HourColorScheme|.
     It contains lists of colorscheme that partition the day.
     (e.g. : ['am-colorscheme','pm-colorscheme'])
     Keys for defining the list of colorscheme (linked to version of Vim )
-    are 'gui' (GVim...), 'term' (vim, nvim-qt..) and 'gui-post-proc',
-    'term-post-proc' to customize the theme.
+    are 'gui' (GVim...), 'term' (vim, nvim-qt..) and 'gui-post',
+    'term-post' to customize the theme.
+    Sub-key is filetype (or '*').
+    Example:
+      let g:scheduled_colorscheme_plan={'term': {'*': ['gruvbox/light', 'gruvbox/dark/hard' ], 'vim':['gruvbox/dark/medium', 'gruvbox/dark/hard' ]}
 
 *g:background*
     Usefull for special weather cases, like heat waves to use 'dark' or 'light'
@@ -88,54 +58,82 @@ GLOBALS                                                *accessibility-globals*
       let &statusline="%#ModeMsg#%{g:km_layer_status}%#{}#".&statusline
 <
 
-*g:km_mode_hash*
-    All known modes, shall not be set before the plugin is loaded
-    to modify or add a mode. Example : >
-       " 'I' for one-shot normal mode from insert mode
-       let g:km_mode_hash['I']=['i','<C-o>','']
-<
-    A value of this dict is a list : (mode, before_action, after_action)
-    Note: after_action is followed by the post-action (see |keybindings-format|)
-    
-    Default values (with $A as action, and $P as post-action):
-        n -> in normal mode, do $A$P
-        : ->               , do :$A<Cr>$P
-        i- > in insert mode, do $A$P
-        N ->               , do <Esc>$A$P
-        I ->               , do <C-o>$A$P
-        v -> in select/visual mode, do $A$P
-        V ->                     ", do <Esc>$A$P
-        s -> in select mode, do $A$P
-        S ->               , do <Esc>$A$P
-        x -> in visual mode, do $A$P
-        X ->               , do <Esc>$A$P
-        o -> in operator-pending mode, do $A$P
-        O ->                         , do <Esc>$A$P
-        l -> in insert/command-line/lang-arg mode, do $A$P
-        L ->                                     , do <Esc>$A$P
-        c -> in command-line mode, do $A$P
-        C ->                     , do <Esc>$A$P
-        a ->                     , expand to $A and do $P
-        A ->                     , expand to $A if keybind is the first element
-                                   (Equivalent of 'alias keybind $A'
-                                    with dynamic expansion)
-
 *g:km_status_substitions*
     Representation of the mode in the status bar
+
+*g:speak_layer_key*
+    Define the key to hit to activate speak keybindings.
+    Default <C-s> (Ctrl + S).
+
+*g:speak_leader_key*
+    Define the leader key which is the first key in combination
+    Default x . 
+
+*g:speak_global_keymap*
+    Define the keymap not prefixed by leader key (active once speak is enabled)
+    Default {}. 
+
+*g:speak_leader_keymap*
+    Define the keymap prefixed by leader key (active once speak is enabled)
+    Default {
+          'k' : ':SpeakClear<Cr>',
+          'a' : ':SpeakLine<Cr><Down>',
+          'b' : ':SpeakLine<Cr>',
+          'n' : ':SpeakMatchesNumber<Cr>',
+          'f' : ':SpeakFileName<Cr>',
+          'p' : ':SpeakYanked<Cr>',
+          'W' : ':SpeakWORDPunc<Cr>',
+          'w' : ':SpeakWORD<Cr>',
+          }
+
+*g:speak_layer_keymap*
+    Define the keymap usable whe the speak layer is enable
+    for more, see the content of the variable or call keybindings#PrintLayer('~Speak')
+
+*g:speak_lang*
+    speech dispatcher lang
+
+*g:speak_voice_type*
+    speech dispatcher voice type
+
+*g:speak_layer_key*
+    Define the key to hit to activate speak keybindings.
+    Default <C-s> (Ctrl + S).
+
+*g:speak_leader_key*
+    Define the leader key which is the first key in combination
+    Default x . 
+
+*g:speak_global_keymap*
+    Define the keymap not prefixed by leader key (active once speak is enabled)
+    Default {}. 
+
+*g:speak_leader_keymap*
+    Define the keymap prefixed by leader key (active once speak is enabled)
+    Default {
+          'k' : ':SpeakClear<Cr>',
+          'a' : ':SpeakLine<Cr><Down>',
+          'b' : ':SpeakLine<Cr>',
+          'n' : ':SpeakMatchesNumber<Cr>',
+          'f' : ':SpeakFileName<Cr>',
+          'p' : ':SpeakYanked<Cr>',
+          'W' : ':SpeakWORDPunc<Cr>',
+          'w' : ':SpeakWORD<Cr>',
+          }
+
+*g:speak_layer_keymap*
+    Define the keymap usable whe the speak layer is enable
+    for more, see the content of the variable or call keybindings#PrintLayer('~Speak')
+
+*g:speak_lang*
+    speech dispatcher lang
+
+*g:speak_voice_type*
+    speech dispatcher voice type
 
 
 ==============================================================================
 FUNCTIONS                                            *accessibility-functions*
-
-remanent#enable([[silent]])                               *remanent#enable()*
-    Enable remanent keys. (map keybinds)
-    If [silent] is not provided or is 0, then |g:remanent_map| is shown.
-
-remanent#disable([[silent]])                             *remanent#disable()*
-    Disable remanent keys. (unmap keybinds)
-
-remanent#reset()                                           *remanent#reset()*
-    Disable and enable remanent keys. (remap keybinds)
 
 colortheme#enable()                                     *colortheme#enable()*
     Enable |SetColorScheme|, |HourColorScheme|,
@@ -143,8 +141,14 @@ colortheme#enable()                                     *colortheme#enable()*
     Enable automatic theme change.
     See |g:scheduled_colorscheme_plan|.
 
+keybindings#PrintLayer(layer)                      *keybindings#PrintLayer()*
+    Shows a formated layer Description
+
 keybindings#PrintCurrentLayer()             *keybindings#PrintCurrentLayer()*
-    Print current keybind layer.
+    Shows current keybind layer.
+@function keybindings#ToggleLayer
+    Switch to an other keymap layer
+    :param layer: the layer name (unique indentifier)
 
 keybindings#Map(name, keybinds, action, modes_and_post_actions)
                                                            *keybindings#Map()*
@@ -152,18 +156,50 @@ keybindings#Map(name, keybinds, action, modes_and_post_actions)
     - name   required for info e.g. 'Save the file', 
     - keybind or keybind list e.g. '<C-s>', ['<C-s>','<C-S'>]
     - action                   e.g. ':w<CR>',
-    - list of mode (1st char)
-      and post action         e.g. 'i','Ia','n','v' 
-    e.g. 'ia' -> for insert mode do the keybinding a reenter in insert mode with 'a' 
-    e.g. 'i<Left>' -> for insert mode do the keybinding and move cursor to left
+    - list of mode (1st char) and action to prepare mode 
+    e.g. 'i<Esc>' -> for insert mode going to normal mode
+    If action contains one of the following keyword, it will be modified :
+      <Mode>        -> the current mode char ('i', 'v', ...) as defined
+      <Keybind>     -> the keybinding
+      <ActionName>  -> the name of the action
+      <LayerName>   -> the current layer name
+    See **g:keybindings#Source** for more substitutions
 
 keybindings#export()                                   *keybindings#export()*
     export for a faster boot and lighter memory usage
     without dependencies
     and to share your keymap
 
+keybindings#LowercaseAliasesForCommand(...)
+                                    *keybindings#LowercaseAliasesForCommand()*
+    Creation aliases for commands in args.
+    If more than one word is provided, then characters '!%/ ' are removed.
+    Example: call keybindings#LowercaseAliasesForCommand('Info', 'Info info', 's/first/second/', '!date')
+             will create aliases : info, infoinfo, sfirstsecond, date
+
+keybindings#Alias(alias, cmd, options = {})             *keybindings#Alias()*
+    Creation alias for command. 
+    Options opts a dictionnary with possible keys :
+    - autocmd     : str default empty : autocmd to define the alias in a specific context
+    - if          : str default empty : expression to validate in order to expand
+    - append_expr : str default empty : expression to call when expanding
+    - append      : str default empty : string to add after expansion
+    - keymap_type : char default 'c' : 'c' or 'i'
+    - do_expand   : bool default false : if true, try to expands variables in command
+    - is_inline   : bool default false : if false, the alias only expand at start of the line
+    - is_expr     : bool default false : if true, treat command as vim expression
+    - is_keymap   : bool default false : if true, use 'map' insteand of 'abbrev' 
+    Example: call keybindings#Alias('help', 'Help info', {})
+
 Keymap#Source([file], (opt) [substs], (opt) include_sid)    *Keymap#Source()*
     Source [file] according to the |keybindings-format|.
+    
+    Below, an example for substs and to use <SID> keyword in file loaded:
+    let s:substs=[
+          \ ['getregid("\([^"]*\)")', 'echo "Register \1?"  | let reg=nr2char(getchar()) | echo reg', 'g'],
+          \ ['pum?', '<expr>pumvisible()?', '']
+          \]
+    call keybindings#Source(expand('<sfile>'), s:substs, 1)
 
 selection#vgetSelectedText()                   *selection#vgetSelectedText()*
     Return selected text (string) while visual mode is activated.
@@ -176,6 +212,46 @@ selection#Status()                                       *selection#Status()*
     * if is full line (V), return (line width, selection height)
     * if is square (), return (selection width, selection height)
     * if is per character (v), return the number of characters selected
+
+statusui#CloseHelpWin()                             *statusui#CloseHelpWin()*
+    Close Help Window (openned before)
+    let s:help_win_bufnr=0
+
+statusui#HelpWin([title], [content], [filetype], [[lifetime]])
+                                                          *statusui#HelpWin()*
+    Create/open a new Help Window
+
+speak#enable(bool do_enable_keymap)                          *speak#enable()*
+    Active speak functionnality
+    if has('win32')
+
+speak#(text [, options, speak_lang])                               *speak#()*
+    speak text with spd-say
+
+WordBefore(line,col,endpattern,finalpattern)                   *WordBefore()*
+    return the word before cursor
+
+WordAfter(line,col,endpattern,finalpattern)                     *WordAfter()*
+    return the word following cursor
+
+speak#disable()                                             *speak#disable()*
+    Disable speak functionnality
+
+speak#enable(bool do_enable_keymap)                          *speak#enable()*
+    Active speak functionnality
+    if has('win32')
+
+speak#(text [, options, speak_lang])                               *speak#()*
+    speak text with spd-say
+
+WordBefore(line,col,endpattern,finalpattern)                   *WordBefore()*
+    return the word before cursor
+
+WordAfter(line,col,endpattern,finalpattern)                     *WordAfter()*
+    return the word following cursor
+
+speak#disable()                                             *speak#disable()*
+    Disable speak functionnality
 
 
 ==============================================================================
@@ -229,9 +305,9 @@ Add following lines in your .vimrc to setup your own colorscheme plan: >
    " File and Time-relative based colorscheme 
     let g:scheduled_colorscheme_plan={
       'gui':{'*':['molokai','molokai','gruvbox','gruvbox/dark/','molokai']}
-      'gui-post-proc':'call InitCursor()',
+      'gui-post':'call InitCursor()',
       'term':{'*':['molokai-term','molokai-term','gruvbox/dark','gruvbox/dark/hard','molokai-term']}
-      'term-post-proc':'call InitCursor()'}
+      'term-post':'call InitCursor()'}
     let g:scheduled_colorscheme_secure_change=1
     
    " Scheduled changement of colorscheme.
@@ -248,42 +324,80 @@ Add following lines in your .vimrc to setup your own colorscheme plan: >
 FILE FORMAT                                         *accessibility-fileformat*
 
 *keybindings-format*
+Note: For readability, post-actions and modes from hash no more exists.
 Given :
- * keybind(s) is a list of keybinds (separated by a ' ')
+ * keybind(s) is a list of keybinds (separated by a ' ', use '<space>' for a space)
+   [keyinds are as defined for *:map* {rhs}]
  * Comment is an human description of the action
- * Action is a sequence of keys as it was typed
- * Mode(s)/Post-Action(s) is a list (separated by a ' ') of:
-   * Mode is a mode as defined in |g:km_mode_hash|
-   * Post-Action is a sequence of keys
+ * Action is a sequence of keys as it was typed [as defined for *:map* {rhs}]
+ * Mode(s) is a list (separated by a ',') of:
+   * Mode is an explicit *map-modes* in n,v,s,x,o,i,l,c,t (all except map and map!)
+     followed by additionnal keys to be hitted to access some editing state.
+     Some examples here :
+      * the keybind is defined for normal mode but you want it to be useable
+      in insert mode,
+        use km(i<C-o>,n) [<C-o> go to normal mode and return to insert mode]
+         or km(i<Esc>,n) [<Esc> leave insert mode for normal mode]
+ * keywords you can use (at the start of the line) are:
+   * km(..)         for keybinding definition
+   * km:for name in [v_1, v_2]
+   * km:for [name1, name2] in [[v_1_1, v_1_2], ..]
+   * km:for [..] in function_call(..)
+                    to loop over definition with variants
+   * km:endfor      to end the loop context
+   * alias          for (command line) alias
+   * alias:if       to add condition on alias
+   * alias:endif    to end the conditional context
 
 The short format to define keymaps is the following. >
- "keybind(s) "Comment"           Action         % mode(s)/post-action(s)
- <F1>        "Cleared key"        <nop>         % c v
- <F2> <F3>   "Cleared keys"       <nop>         % c v
- <A-t>       "Cycle tab"          gt            % n I
- <A-T>       "Cycle tab"          gT            % n I
- 
- " Mode variation for an uniq keybind 
- <A-P>       "Do paste"                         % c<C-r>+ I"+P  n"+P  v"+P
+ "mode(s)       keybind(s)  "Comment"        Action
+ km(c,v)      <F1>       "Cleared key"       <nop>
+ km(c,v)      <F2> <F3>  "Cleared keys"      <nop>
+ km(i)        <A-Up>     "Complete/select"   <expr>pumvisible()?"<KeyBind>":"<C-x><C-i>"
+ km(n,i<C-o>) <A-t>      "Cycle tab"         gt
 
- " Use expressions
- <A-Up>   "Complete/select"  <expr>pumvisible()?"<KeyBind>":"<C-x><C-i>" % i
+ km:for l:k in ['Up', 'Down', 'Left', 'Right']
+ km(i<c-o>,n) <S-{l:k}>       "Enter Visual"                   v
+ km(v)        <S-{l:k}>       "Visual selection (arrow)"       <{l:k}>
+ km:endfor
 
- "Simple commands from normal mode
- <F11> "-" registers %  :
-
- "Filetype rules
- [FileType python]
-           "No invisible space" <Space>         %  c i
- []
+ " Filetype rules example
+ autocmd FileType python
+ km(c,i)                 "No invisible space" <Space>
+ autocmd
 
  " COMMAND LINE SPECIFIC
- " Dynamic variable expansion
- %%        "Local dir"          %:p:h/          % a
-
- " Aliases
- tnn       "Show files arround" tabnew %:p:h    % A/<C-d>
+ " Aliases abbreviation 
  alias qa confirm qa
+ alias tnn <cmap> <expand> tabnew %:p:h/<C-d>
+ alias <A-v> <cmap> <inline> \\%V
+ " options shall appear the order it is described below:
+ "
+ "  <?map>      normally <cmap>, to use key binding instead of abbreviation
+ "              (vim specific)
+ "              - abbreviation let you show what you type before resolution
+ "              - keybinding (map) hide characters until the resolution
+ "
+ "  <expand>    use expand() on each word to expand the words (<cword> or %:p)
+ "
+ "  <inline>    instead of resolving the alias at the start of line only
+ "              allow resolution in middle of line (like standard abbrev)
+ "
+ "  <expr>      to use vim functions to fill the content
+
+ " In the right part you can invoke special behavior with
+ "  <C-r>= <cr>  use function register
+ "  <C-d>        **c_CTRL-D** to list names of matching a pattern
+
+ " Expanded abbreviation  (equivalent of alias <expand> <inline>)
+ expand %%  %:p:h/
+
+ " alias and expand can be sourrouned by a condition in order to limit the
+ " impact of the abbreviation
+ alias:if (&ft != 'vim')
+ alias so% echo 'Cannot source '.&ft
+ alias:endif
+
 <
 See ./samples/ to get many examples.
 
@@ -292,10 +406,38 @@ See ./samples/ to get many examples.
 You can nest |keybindings-format| in a vim script.
 In order to do that, the script part shall be at file beginning
 and be surrounded by `if 0 | endif` and `finish`. >
+These to word ensure the script part is ignored while loading the keybindings.
      if 0 | endif
      call keybindings#Source(expand('<sfile>'))
      finish
      Q        "Cleared key" <nop> % n
+<
+
+For more advanced use, calling the function is required. >
+     if 0 | endif
+      function! s:RemovePathComponent()
+          let l:cmdlineBeforeCursor = strpart(getcmdline(), 0, getcmdpos() - 1)
+          let l:cmdlineAfterCursor = strpart(getcmdline(), getcmdpos() - 1)
+
+          let l:cmdlineRoot = fnamemodify(cmdlineBeforeCursor, ':r')
+          let l:result = (l:cmdlineBeforeCursor ==# l:cmdlineRoot ?
+                \ substitute(l:cmdlineBeforeCursor, '\%(\\ \|[\\/]\@!\f\)\+[\\/]\=$\|.$', '', '')
+                \ : l:cmdlineRoot)
+          call setcmdpos(strlen(l:result) + 1)
+          return l:result . l:cmdlineAfterCursor
+      endfunction
+     " substitutions to shorten keybinding definition
+     let s:substs=[
+     \ ['pum?', '<expr>pumvisible()?', '']
+     \]
+
+     " include sid is for using the previously defined function
+     let s:include_sid = 1
+
+     call keybindings#Source(expand('<sfile>'), s:substs, s:include_sid)
+     finish
+     km(i) <A-Up>    "Compl.from file    "    pum?"<UP>":"<C-x><C-i>"
+     km(c) <C-h>     "RemovePathComponent"   <C-\>e(<SID>RemovePathComponent())<CR>
 <
 
 vim:tw=78:ts=8:ft=help:norl:

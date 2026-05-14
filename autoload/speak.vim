@@ -4,12 +4,16 @@
 " @Created:     2018-03-26
 " @Last Change: 2019-05-07
 " @Revision:    2
-if exists('g:loaded_accessibility_speak') ||
+if get(g:, 'loaded_accessibility_speak', 0) ||
   \ ! get(g:,'enable_accessibility_speak', 0) ||
   \ &compatible
   finish
 endif
 let g:loaded_accessibility_speak=1
+
+
+" @function speak#enable(bool do_enable_keymap)
+" Active speak functionnality
 if has('win32')
    fu speak#enable(enkm)
      echomsg "os not supported"
@@ -25,13 +29,45 @@ else
     finish
   endif
 endif
+
+
+" @global g:speak_layer_key
+" Define the key to hit to activate speak keybindings.
+" Default <C-s> (Ctrl + S).
 let g:speak_layer_key = get(g:,'speak_keymap', '<C-s>')
+
+" @global g:speak_leader_key
+" Define the leader key which is the first key in combination
+" Default x . 
+let g:speak_leader_key = get(g:,'speak_leader', '<Tab>')
+
+" @global g:speak_global_keymap
+" Define the keymap not prefixed by leader key (active once speak is enabled)
+" Default {}. 
 let g:speak_global_keymap = get(g:,'speak_keymap', {})
-let g:speak_leader_key = get(g:,'speak_leader', 'ç')
+
+" @global g:speak_leader_keymap
+" Define the keymap prefixed by leader key (active once speak is enabled)
+" Default {
+"       'k' : ':SpeakClear<Cr>',
+"       'a' : ':SpeakLine<Cr><Down>',
+"       'b' : ':SpeakLine<Cr>',
+"       'n' : ':SpeakMatchesNumber<Cr>',
+"       'f' : ':SpeakFileName<Cr>',
+"       'p' : ':SpeakYanked<Cr>',
+"       'W' : ':SpeakWORDPunc<Cr>',
+"       'w' : ':SpeakWORD<Cr>',
+"       }
 let g:speak_leader_keymap = get(g:,'speak_leader', {
       \ 'k' : ':SpeakClear<Cr>',
-      \ 'a' : ':SpeakLine<Cr><Down>',
+      \ 'a' : '<Down>:SpeakLine<Cr>',
       \ 'b' : ':SpeakLine<Cr>',
+      \ '<Left>' : ':SpeakPosition<Cr>',
+      \ '<Right>' : ':SpeakLinePunc<Cr>',
+      \ '<S-Left>' : ':SpeakLinePuncBefore<Cr>',
+      \ '<S-Right>' : ':SpeakLinePuncAfter<Cr>',
+      \ '<Up>' : '<up>:SpeakLinePunc<Cr>',
+      \ '<Down>' : '<Down>:SpeakLinePunc<Cr>',
       \ 'n' : ':SpeakMatchesNumber<Cr>',
       \ 'f' : ':SpeakFileName<Cr>',
       \ 'p' : ':SpeakYanked<Cr>',
@@ -39,6 +75,9 @@ let g:speak_leader_keymap = get(g:,'speak_leader', {
       \ 'w' : ':SpeakWORD<Cr>',
       \})
 
+" @global g:speak_layer_keymap
+" Define the keymap usable whe the speak layer is enable
+" for more, see the content of the variable or call keybindings#PrintLayer('~Speak')
 let g:speak_layer_keymap = get(g:,'speak_layer_keymap', {
       \'i' : {
       \   '<S-Cr>' : '<C-o>:SpeakLinePunc<Cr>',
@@ -69,7 +108,7 @@ let g:speak_layer_keymap = get(g:,'speak_layer_keymap', {
       \   'E' : '"0yEE:silent! call speak#(getreg("0")),"-m all")<Cr>',
       \   'B' : '"0yBB:silent! call speak#(getreg("0")),"-m all")<Cr>',
       \   'e' : 'e:silent! call speak#(WordBefore(getline("."),col("."),"\\W"," "),"-m all")<Cr>',
-        \   'b' : 'b:silent! call speak#(WordAfter(getline("."),col("."),"\\W"," "),"-m all")<Cr>',
+      \   'b' : 'b:silent! call speak#(WordAfter(getline("."),col("."),"\\W"," "),"-m all")<Cr>',
       \   'G' : 'G:silent! call speak#(line(".")." ".getline("."))<Cr>',
       \   '{' : '{:silent! call speak#(line(".")." ".getline("."))<Cr>',
       \   '}' : '}:silent! call speak#(line(".")." ".getline("."))<Cr>',
@@ -110,28 +149,36 @@ let g:speak_layer_keymap = get(g:,'speak_layer_keymap', {
       \   }
       \})
 
-let g:speak_lang = get(g:, 'speak_lang','')
-let g:speak_voice_type = get(g:, 'speak_voice_type', "female1")
+" @global g:speak_lang
+" speech dispatcher lang
+let g:speak_lang = get(g:, 'speak_lang', '')
 
-" speak#(text [, options, speak_lang])
+" @global g:speak_voice_type
+" speech dispatcher voice type
+let g:speak_voice_type = get(g:, 'speak_voice_type', '')
+
+" @function speak#(text [, options, speak_lang])
+" speak text with spd-say
 function! speak#(txt,...)
-  let l:speak_lang=''
-  let l:opt=''
-  if len(a:000)
-    let l:opt=a:000[0]
-    let l:speak_lang=get(a:000,1,'')
-  endif
-  if !len(l:speak_lang)
-    if len(g:speak_lang)
-      let l:speak_lang=g:speak_lang
-    else
-      let l:speak_lang=&spelllang
+    let l:opt=get(a:000, 0, '')
+    let l:speak_lang=get(a:000,1, g:speak_lang)
+    let l:cmd='spd-say -w '.l:opt
+
+    if len(l:speak_lang)
+          let l:cmd.=' -l '.l:speak_lang
     endif
-  endif
-  silent! exe '!spd-say -w '.l:opt.' -l '.l:speak_lang.' -t '.g:speak_voice_type.' '.shellescape(substitute(a:txt,"\n","\t",'g'),1).' &'
-  return ''
+    if len(g:speak_voice_type)
+          let l:cmd.=' -t '.g:speak_voice_typ
+    endif
+    let l:cmd.= " ". shellescape(substitute(a:txt,"\n","\t",'g'),1)." &"
+    unsilent echo l:cmd
+    
+    silent! exe '!'.l:cmd
+    return ''
 endfunction
 
+" @function WordBefore(line,col,endpattern,finalpattern)
+" return the word before cursor
 function! WordBefore(line,col,endpattern,finalpattern)
   let l:col=a:col-1
   "firstchar
@@ -152,6 +199,8 @@ function! WordBefore(line,col,endpattern,finalpattern)
   return l:ret
 endfu
 
+" @function WordAfter(line,col,endpattern,finalpattern)
+" return the word following cursor
 function! WordAfter(line,col,endpattern,finalpattern)
   let l:col=a:col-1
   "firstchar
@@ -176,7 +225,7 @@ endfu
 
 
 let s:keymap_enabled=0
-function!  speak#enable(enablekeymap)
+function!  speak#enable(enablekeymap, ...)
   command! -nargs=? SpeakLine  silent! call speak#(getline('.'),'', <q-args>)
   command! -nargs=? SpeakLinePunc silent! call speak#(getline('.'),'-m all', <q-args>)
   command! SpeakClear silent! exe '!spd-say -S' 
@@ -194,8 +243,11 @@ function!  speak#enable(enablekeymap)
   command! SpeakColNum silent! call speak#(col('.'))
   command! SpeakWORD silent! call speak#(expand("<cWORD>"))
   command! SpeakWORDPunc silent! call speak#(expand("<cWORD>"), '-m all')
-  command! SpeakWord silent! call speak#(expand("<cword>"))
+  command! SpeakWord silent! call speak#(expand("<cword>"), '-m all')
   command! SpeakYanked silent! call speak#(getreg('"'), '-m all')
+  command! SpeakPosition silent! call speak#('l '. line('.').' c '.col('.'), '-m all')
+  command! SpeakLinePuncBefore silent! call speak#(getline('.')[0:col('.')-2], '-m all')
+  command! SpeakLinePuncAfter silent! call speak#(getline('.')[col('.')-1:], '-m all')
 
   if a:enablekeymap
     let s:keymap_enabled=1
@@ -203,6 +255,8 @@ function!  speak#enable(enablekeymap)
   endif
 endfunction
 
+" @function speak#disable()
+" Disable speak functionnality
 function!  speak#disable()
   delcommand! SpeakLine
   delcommand! SpeakLinePunc

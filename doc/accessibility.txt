@@ -2,24 +2,23 @@
                                                                *accessibility*
  >
 
-                ,/,/,/,/
-    V   ? ? ? ,/       ,/  ? ?
-    I         | 0 .  0 '|)
-    M         |   ^    '|
-          ww, `.______.'   ,ww 
+              .,.,.,.,.,.,
+             ((~)~\~\~\))))
+             ((/       ,)))
+             (((0    0 '|))
+             ((|       '|))
+          ww,  '______.'   ,ww 
            \\_______\ \_____||
           ,,,,,,,,,,,,,,,,,,,,
          /ooo oooooo    ooooo/
         /ooo ooooooooooooooo/
        /ooo ooooooooooooooo/
        ''''''''''''''''''''
-
 <
 License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 Author(s):   luffah
 Revision:    2
 Last Change: 2019-05-07
-
 
 Set of scripts attempting to implement accessibility features with Vim.
 
@@ -83,25 +82,6 @@ GLOBALS                                                *accessibility-globals*
     Usefull for special weather cases, like heat waves to lock hour (0-23) used
     by |HourColorScheme|.
 
-*g:km_file_include_sid*
-    To set before using |:Keymap| in order to use script local variable
-    and function.
-
-*g:km_file_substs*
-    To set before using |:Keymap| in order to use to substitute repetitive
-    sequence.
-    Require |keymap-inception|. >
-         if 0 | endif
-         let g:km_file_substs=[
-         \ ['pum?', '<expr>pumvisible()?', '']
-         \]
-    
-         KeyMap <sfile>
-         finish
-         <A-Up>    "Compl.from file  " pum?"<UP>":"<C-x><C-i>"   %  i
-         finish
-<
-
 *g:km_layer_status*
     Layer status string.
     If you customize your statusline your could need to add : >
@@ -115,7 +95,7 @@ GLOBALS                                                *accessibility-globals*
        let g:km_mode_hash['I']=['i','<C-o>','']
 <
     A value of this dict is a list : (mode, before_action, after_action)
-    Note: after_action is followed by the post-action (see |KeyMap-format|)
+    Note: after_action is followed by the post-action (see |keybindings-format|)
     
     Default values (with $A as action, and $P as post-action):
         n -> in normal mode, do $A$P
@@ -163,10 +143,11 @@ colortheme#enable()                                     *colortheme#enable()*
     Enable automatic theme change.
     See |g:scheduled_colorscheme_plan|.
 
-KeyMap#PrintCurrentLayer()                       *KeyMap#PrintCurrentLayer()*
+keybindings#PrintCurrentLayer()             *keybindings#PrintCurrentLayer()*
     Print current keybind layer.
 
-KeyMap#Map(name, keybinds, action, modes_and_post_actions)     *KeyMap#Map()*
+keybindings#Map(name, keybinds, action, modes_and_post_actions)
+                                                           *keybindings#Map()*
     Assign keybindings with these arguments
     - name   required for info e.g. 'Save the file', 
     - keybind or keybind list e.g. '<C-s>', ['<C-s>','<C-S'>]
@@ -176,13 +157,13 @@ KeyMap#Map(name, keybinds, action, modes_and_post_actions)     *KeyMap#Map()*
     e.g. 'ia' -> for insert mode do the keybinding a reenter in insert mode with 'a' 
     e.g. 'i<Left>' -> for insert mode do the keybinding and move cursor to left
 
-KeyMap#export()                                             *KeyMap#export()*
+keybindings#export()                                   *keybindings#export()*
     export for a faster boot and lighter memory usage
     without dependencies
     and to share your keymap
 
-Keymap#Source([file])                                       *Keymap#Source()*
-    Source [file] according to the |KeyMap-format|.
+Keymap#Source([file], (opt) [substs], (opt) include_sid)    *Keymap#Source()*
+    Source [file] according to the |keybindings-format|.
 
 selection#vgetSelectedText()                   *selection#vgetSelectedText()*
     Return selected text (string) while visual mode is activated.
@@ -211,6 +192,14 @@ COMMANDS                                              *accessibility-commands*
     then  call -post-proc
     See |g:scheduled_colorscheme_plan|.
 
+*:NextBackground*
+    Switch dark / light background
+    then  call -post-proc
+
+*:NextConstrast*
+    Switch dark / light background
+    then  call -post-proc
+
 *:NextColorScheme*
     Shows colorschemes one by one.
 
@@ -222,9 +211,6 @@ COMMANDS                                              *accessibility-commands*
 
 *:Layers*
     List possible values for |:Layer|.
-
-*:KeyMap* [file]
-    Source [file] according to the |KeyMap-format|. Use |Keymap#Source()|.
 
 
 ==============================================================================
@@ -242,9 +228,9 @@ Add following lines in your .vimrc to setup your own colorscheme plan: >
    
    " File and Time-relative based colorscheme 
     let g:scheduled_colorscheme_plan={
-      'gui':{'*':['molokai','molokai','gruvbox','gruvbox/dark','molokai']}
+      'gui':{'*':['molokai','molokai','gruvbox','gruvbox/dark/','molokai']}
       'gui-post-proc':'call InitCursor()',
-      'term':{'*':['molokai-term','molokai-term','gruvbox/dark','gruvbox/dark','molokai-term']}
+      'term':{'*':['molokai-term','molokai-term','gruvbox/dark','gruvbox/dark/hard','molokai-term']}
       'term-post-proc':'call InitCursor()'}
     let g:scheduled_colorscheme_secure_change=1
     
@@ -261,7 +247,7 @@ Add following lines in your .vimrc to setup your own colorscheme plan: >
 ==============================================================================
 FILE FORMAT                                         *accessibility-fileformat*
 
-*KeyMap-format*
+*keybindings-format*
 Given :
  * keybind(s) is a list of keybinds (separated by a ' ')
  * Comment is an human description of the action
@@ -303,11 +289,11 @@ See ./samples/ to get many examples.
 
 
 *keymap-inception* 
-"Keymap inception" is the practice to bind |KeyMap-format| in a vim
-script. In order to use it, the script part shall be at file beginning
+You can nest |keybindings-format| in a vim script.
+In order to do that, the script part shall be at file beginning
 and be surrounded by `if 0 | endif` and `finish`. >
      if 0 | endif
-     KeyMap <sfile>
+     call keybindings#Source(expand('<sfile>'))
      finish
      Q        "Cleared key" <nop> % n
 <

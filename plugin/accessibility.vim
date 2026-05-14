@@ -7,17 +7,18 @@
 " @Files
 "   ../autoload/remanent.vim
 "   ../autoload/colortheme.vim
-"   ../autoload/KeyMap.vim
+"   ../autoload/keybindings.vim
 "   ../autoload/spelllang.vim
 "   ../autoload/selection.vim
 "   #../autoload/speak.vim
 "   #../autoload/statusui.vim
 " @AsciiArt
-"             ,/,/,/,/
-" V   ? ? ? ,/       ,/  ? ?
-" I         | 0 .  0 '|)
-" M         |   ^    '|
-"       ww, `.______.'   ,ww 
+"           .,.,.,.,.,.,
+"          ((~)~\~\~\))))
+"          ((/       ,)))
+"          (((0    0 '|))
+"          ((|       '|))
+"       ww,  '______.'   ,ww 
 "        \\_______\ \_____||
 "       ,,,,,,,,,,,,,,,,,,,,
 "      /ooo oooooo    ooooo/
@@ -36,6 +37,10 @@
 " Define if speak shorcuts shall be enabled at startup.
 " The Speak* commands still enabled.
 " Default 0.
+if exists("g:loaded_accessibility") || &cp || v:version < 700
+  finish
+endif
+let g:loaded_accessibility = 1
 
 if get(g:,'enable_accessibility_speak', 0)
    call speak#enable(get(g:,'enable_accessibility_speak_keymap', 0))

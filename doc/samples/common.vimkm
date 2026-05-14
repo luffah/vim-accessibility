@@ -1,5 +1,5 @@
 " key(s)        "Comment              " action  %   modechar.postactions
-" this file can be loaded with :KeyMap %
+" this file can be loaded with :call keybindings(expand('%'))
 <F1> Q          "Cleared keys" <nop>        % n
 
 " In the following examples I refers to instert mode and force <C-o> (normal mode)

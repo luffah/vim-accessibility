@@ -1,5 +1,5 @@
 " key(s)        "Comment              " action  %   modechar.postactions
-" this file can be loaded with :KeyMap %
+" this file can be loaded with :call keybindings(expand('%'))
 <F6>            "Exe current line"      :exe getline('.')<Cr> % n
 
 " Here N, is insert mode forced to <Esc> normal mode
@@ -42,9 +42,9 @@ H               "Repeat command line"     ::<Cr>            %  n o v
 
 " With bépo, it can occur many time to hit accidentally  <S-Space>.
 " Or, the produced char ( ) can make a script crash.
-[FileType python]
+autocmd FileType python
     "Pas d'espace insécable en python"    <Space>             %  c i
-[]
+autocmd
 
 " End of this file is specific to command line ------------------------------
 

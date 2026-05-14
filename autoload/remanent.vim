@@ -1,4 +1,4 @@
-" KeyMap.vim -- Vim lib for remanent shift and ctrl 
+" remanent.vim -- Vim lib for remanent shift and ctrl 
 " @Author:      luffah (luffah AT runbox com)
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2018-03-26

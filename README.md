@@ -24,7 +24,7 @@ This project group things intended to make Vim more accessible for people.
     <A-Right>   "Compl. filename " pumvisible()?"<Cr>":"%1%<C-x><C-f>" % i -n-%i%
     
     " Want more ? you forgot your shortcuts ? do you want to see the list.
-    " You can ':call KeyMap#PrintCurrentLayer()',
+    " You can ':call keybindings#PrintCurrentLayer()',
     " But why not grouping shortcuts by categories ?
     " -> a tutorial mode for <C-w>
     <C-w>       "C-w"                  <OneShot=wincmd>                %  n
@@ -40,27 +40,27 @@ This project group things intended to make Vim more accessible for people.
     ```vim
     " <C-l> enter in command line mode from insert, normal, and visual mode
     " cal ..Map('Description', keys, action, modes_and_things_related_to_the_mode)
-    cal KeyMap#Map('Enter command line' , ['<C-l>','<A-l>']   , ':' , ['I','n','v'])
+    cal keybindings#Map('Enter command line' , ['<C-l>','<A-l>']   , ':' , ['I','n','v'])
     " I is for insert mode, to use a one-shot normal mode key. (equivalent to '<C-o>:')
     
     " <A-Right> complete filename in insert and normal mode
     " 'i' is for insert mode 
     " '-n-%i%'  is for normal mode; but force the use of <C-x><C-f> in insert mode
     "           another way to say it : '%1%<C-x><C-f>' is replaced by 'i<C-x><C-f>'
-    cal KeyMap#Map('Complete filename' , '<A-Right>' , 'pumvisible()? "<Cr>":"%1%<C-x><C-f>"'   , ['i' , '-n-%i%'])
+    cal keybindings#Map('Complete filename' , '<A-Right>' , 'pumvisible()? "<Cr>":"%1%<C-x><C-f>"'   , ['i' , '-n-%i%'])
     
     " Following example is usefull for re-discovering keys
     " When you hit <C-w>, a window with 'T -> Move to a new tab' is shown
     " If you hit 'T' then ':wincmd T' is applied
     " Too, if you hit 'w' then ':wincmd w' is applied (no need to document everything)
-    cal KeyMap#Map('C-w'            , '<C-w>' , "<OneShot=wincmd>"  , ['n'])
-    cal KeyMap#Map(':Move to a new tab' , 'T'       , "T" , [])
+    cal keybindings#Map('C-w'            , '<C-w>' , "<OneShot=wincmd>"  , ['n'])
+    cal keybindings#Map(':Move to a new tab' , 'T'       , "T" , [])
 
     " Here a way to have a thousand of keybinds
     " It define a new keybind temporary layer,
     " '~' just say to not show the window which shows activated keybinds
-    cal KeyMap#Map('~Emacs C-x'    , '<C-x>' , '<Layer>' , ['n'])
-    cal KeyMap#Map(':Search file'    , '<C-f>' , '<ExitLayer>:e! %:p:h/*' , ['n'])
+    cal keybindings#Map('~Emacs C-x'    , '<C-x>' , '<Layer>' , ['n'])
+    cal keybindings#Map(':Search file'    , '<C-f>' , '<ExitLayer>:e! %:p:h/*' , ['n'])
     ```
    </details><br>
 
@@ -87,8 +87,8 @@ packloadall
 
 " Examples
 let mapleader=","
-KeyMap $VIMPLUGINS/vim-accessibility/doc/samples/common.vimkm
-KeyMap $VIMPLUGINS/vim-accessibility/doc/samples/bepo.vimkm
+KeybindingsSource $VIMPLUGINS/vim-accessibility/doc/samples/common.vimkm
+KeybindingsSource $VIMPLUGINS/vim-accessibility/doc/samples/bepo.vimkm
 ```
 
 <details>
@@ -108,12 +108,12 @@ filetype indent plugin on
 
 " [Required]
 " Given plugins commands are only usable after initialization
-" Sourcing the files, ensure KeyMap is known.
+" Sourcing the files, ensure KeybindingsSource is known.
 so $VIMPLUGINS/vim-accessibility/loader.vim
 " Examples
 let mapleader=","
-KeyMap $VIMPLUGINS/vim-accessibility/doc/samples/common.vimkm
-KeyMap $VIMPLUGINS/vim-accessibility/doc/samples/bepo.vimkm
+KeybindingsSource $VIMPLUGINS/vim-accessibility/doc/samples/common.vimkm
+KeybindingsSource $VIMPLUGINS/vim-accessibility/doc/samples/bepo.vimkm
 ```
 </details><br>
 

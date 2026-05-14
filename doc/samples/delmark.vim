@@ -34,5 +34,5 @@ endfu
 command! -nargs=1 DelMark call s:rm_mark(<q-args>)
 command! -nargs=1 Mark call s:add_mark(<q-args>)
 
-cal KeyMap#Map('delmark'   , 'dm', "<OneShot=DelMark>" , ['n'])
-cal KeyMap#Map('setmark'   , 'm', "<OneShot=Mark>" , ['n'])
+cal keybindings#Map('delmark'   , 'dm', "<OneShot=DelMark>" , ['n'])
+cal keybindings#Map('setmark'   , 'm', "<OneShot=Mark>" , ['n'])

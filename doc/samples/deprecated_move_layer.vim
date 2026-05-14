@@ -1,6 +1,6 @@
 " This file can be loaded with :source %
 "
-" Here, is an alternative way to use KeyMap library.
+" Here, is an alternative way to use keybindings library.
 " Changing layer for moving cursor is usually uncomfortable.
 " That's why this layer is deprecated.
 "
@@ -9,7 +9,7 @@
 " if you are not satisfied with hjkl.
 "
 " ---------------------------------------- "
-" Alternatives moves, using a KeyMap layer "
+" Alternatives moves, using a keybindings layer "
 " ---------------------------------------- "
 
 "let s:arrows='jkil' "azerty / qwerty
@@ -29,8 +29,8 @@ let g:km_layer_desc['move']=["","",
 \"            ↓               Modes: " . join(s:layer_mode,', '),
 \""]
 
-cal KeyMap#Map('move'   , '<C-n>', "<Layer>" , ['n','vgv'] )
+cal keybindings#Map('move'   , '<C-n>', "<Layer>" , ['n','vgv'] )
 for i in range(0,len(s:arrows)-1)
-  cal KeyMap#Map(':-', s:arrows[i] , s:orig_arrows[i], s:layer_mode)
-  cal KeyMap#Map(':-', toupper(s:arrows[i]) , s:arrows[i] , s:layer_mode)
+  cal keybindings#Map(':-', s:arrows[i] , s:orig_arrows[i], s:layer_mode)
+  cal keybindings#Map(':-', toupper(s:arrows[i]) , s:arrows[i] , s:layer_mode)
 endfor

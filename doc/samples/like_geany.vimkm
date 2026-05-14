@@ -1,5 +1,5 @@
 " Geany like subset
-" this file can be loaded with :KeyMap %
+" this file can be loaded with :call keybindings#Source(expand('%'))
 "
 " You can simulate Geany behavior, but be aware of what already exists in Vim.
 " You'll probably adopt some Vim keys instead of some complicated shortcuts of non-modals editor.

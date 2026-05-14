@@ -3,7 +3,7 @@ fu! s:compl(key)
   exe 'call feedkeys("a\<C-x>'.(a:key[0]=='<'?'\':'').a:key.'","n")'
 endfu
 command! -nargs=1 ComplCmd call s:compl(<q-args>)
-KeyMap <sfile>
+call keybindings#Source(expand('<sfile>'))
 finish
 "
 <C-x>    "Completion"         <OneShot=ComplCmd> %  i

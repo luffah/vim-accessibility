@@ -238,22 +238,22 @@ function! s:unloadkeymap()
     exe 'unmap '.g:speak_leader_key.l:key
   endfor
   if g:km_active_layer = '~Speak'
-    call KeyMap#ToggleLayer('')
+    call keybindings#ToggleLayer('')
   endif
 endfunction
 
 function! s:loadkeymap()
   for [l:key,l:action] in items(g:speak_global_keymap)
-    cal KeyMap#Map('(speak)'    , l:key , l:action , ['n'])
+    cal keybindings#Map('(speak)'    , l:key , l:action , ['n'])
   endfor
   for [l:key,l:action] in items(g:speak_leader_keymap)
-    cal KeyMap#Map('(speak)'    , g:speak_leader_key.l:key , l:action , ['n'])
+    cal keybindings#Map('(speak)'    , g:speak_leader_key.l:key , l:action , ['n'])
   endfor
-  cal KeyMap#Map('~Speak'    , g:speak_layer_key , '<Layer>' , ['n'])
-  cal KeyMap#Map('~Speak:Exit'    , g:speak_layer_key , '<ExitLayer>' , ['n'])
+  cal keybindings#Map('~Speak'    , g:speak_layer_key , '<Layer>' , ['n'])
+  cal keybindings#Map('~Speak:Exit'    , g:speak_layer_key , '<ExitLayer>' , ['n'])
   for [l:mode,l:keymap] in items(g:speak_layer_keymap)
     for [l:key,l:action] in items(l:keymap)
-      cal KeyMap#Map('~Speak:move'    , l:key , l:action , [l:mode])
+      cal keybindings#Map('~Speak:move'    , l:key , l:action , [l:mode])
     endfor
   endfor
 endfunction

@@ -8,11 +8,9 @@ fu! SwapView(direction)
  wincmd x
  wincmd W
 endfu
-KeyMap <sfile>
+call keybindings#Source(expand('<sfile>'))
 finish
 " Ctrl-W as a remanent key
-" this file can be loaded with :KeyMap %
-"
 <C-w>    "C-w"         <OneShot=wincmd> %  n
 r       ":Rotate                    " r %
 x       ":(count)Exchange           " x %

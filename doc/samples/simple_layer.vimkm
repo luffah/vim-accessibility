@@ -1,5 +1,5 @@
 "Simple example of how to use a layer
-" this file can be loaded with :KeyMap %
+" this file can be loaded with :call keybindings#Source(expand('%'))
 "
 " ~ in the layer name says to not print
 " informations when activating the layer

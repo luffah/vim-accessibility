@@ -1,53 +1,61 @@
-
-<a rel="license" href="https://creativecommons.org/licenses/by-sa/4.0/">
-<img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png"></a>
-<a rel="license" href="./LICENSE"><img src="https://www.gnu.org/graphics/gplv3-88x31.png" alt="License GPLv3"></a>
-
 # Set of scripts attempting to implement accessibility features
 
-This project group things intended to make Vim more accessible for people.
-* Remanent keys : for keeping your pinkies safe<br>
-  ```vim
-    " Map `<Space>` to be the remanent key for Shift, and `<Space><Space>` to be the remanent key for Ctrl.
-    " ['n'] is for normal mode
-     let g:sticky_map = {
-      \'shift': { '<Space>':['n'] },
-      \'ctrl': { '<Space><Space>':['n'] },
-      \})
-  ```
-* Documented keymapping : to force yourself to document your keybind and allow to create tutorials<br>
-    In short, it can be written like that :<br>
+NOTE: new version : dropped the old format
+
+This project group things intended to make Vim more accessible for people.<br>
+
+* Text to Speech dispatcher : keybinds and commands to make Vim speak<br>
+    (require speech-dispatcher on linux - if you use Orca it shall be already installed)
     ```vim
-    " Here 8 simples mapping in 2 lines
-    " Keys     ''Description ''        Vim action                      % modes
-    <C-l> <A-l> "Enter command line"   :                               % I n v
-    <A-Right>   "Compl. filename " pumvisible()?"<Cr>":"%1%<C-x><C-f>" % i -n-%i%
+    " (can setup lang and voice with  g:speak_lang and g:speak_voice_type
+    "  else use spd-say default)
+    ```
+    `:SpeakLine` speak (send text at) the current line (to speech-dispatcher).<br>
+    `:SpeakWORD` speak the following word in the text; intended to be followed by W in order to read text word by word.<br>
+    <br>
+    Anyway, in a GVim just hit `<C-s>` (Ctrl + s) to toggle a screen reader mode.<br>
+    This probably needs to be improved (Emacs-speak users suggestions are welcome).
+
+* Easy-to-use alias feature which are equivalent of cabbrev including expansion condition<br> 
+    In short, it can be written like that (vimkm format):<br>
+    ```vim
+    alias qa           confirm qa
+    alias tnc          tabnew $VIMPWD/<C-d>
+    alias tn/   <cmap> tabnew  /<C-d>
+    alias tn.   <cmap> tabnew ./<C-d>
+    ```
+
+* Documented keymapping : to force yourself to document your keybind and allow to create tutorials<br>
+    In short, it can be written like that (vimkm format) :<br>
+    ```vim
+    " Here 8 mapping in 2 lines
+    "Modes are separated by ','; first char is mode; next chars are some action to prepend
+    "Modes         " Keys     ''Description ''        Vim action
+    km(i<c-o>,n,v) <C-l> <A-l> "Enter command line"   :
+    km(i,ni)       <A-Right>   "Compl. filename "     <expr> pumvisible()?"<Cr>":"<C-x><C-f>"
     
-    " Want more ? you forgot your shortcuts ? do you want to see the list.
-    " You can ':call keybindings#PrintCurrentLayer()',
-    " But why not grouping shortcuts by categories ?
-    " -> a tutorial mode for <C-w>
-    <C-w>       "C-w"                  <OneShot=wincmd>                %  n
-    T           ":Move to a new tab"   T                               %
-    " -> an emacs like layer
-    <C-x>       "~Emacs C-x"           <Layer>                         % n
-    <C-f>       ":Search file"         <ExitLayer>:e! %:p:h/*          % n
+    " ':call keybindings#PrintCurrentLayer()' to see the list of key binding
+    " to group shortcuts by categories :
+    " example 1 : a tutorial mode for <C-w>
+    km(n)      <C-w>       "C-w"                  <OneShot=wincmd>
+    km()       T           ":Move to a new tab"   T
+    " example 2 : emacs-like behavior 
+    km(n)     <C-x>       "~Emacs C-x"           <Layer>
+    km()      <C-f>       ":Search file"         <ExitLayer>:e! %:p:h/*
     ```
     <details>
     <summary>See the details about keymapping</summary>
-    Every lines above are a short format the following lines:<br>
+    Every lines above are a short format the following lines (vim script):<br>
 
     ```vim
     " <C-l> enter in command line mode from insert, normal, and visual mode
     " cal ..Map('Description', keys, action, modes_and_things_related_to_the_mode)
-    cal keybindings#Map('Enter command line' , ['<C-l>','<A-l>']   , ':' , ['I','n','v'])
-    " I is for insert mode, to use a one-shot normal mode key. (equivalent to '<C-o>:')
+    cal keybindings#Map('Enter command line' , ['<C-l>','<A-l>']   , ':' , ['i<c-o>','n','v'])
     
     " <A-Right> complete filename in insert and normal mode
     " 'i' is for insert mode 
-    " '-n-%i%'  is for normal mode; but force the use of <C-x><C-f> in insert mode
-    "           another way to say it : '%1%<C-x><C-f>' is replaced by 'i<C-x><C-f>'
-    cal keybindings#Map('Complete filename' , '<A-Right>' , 'pumvisible()? "<Cr>":"%1%<C-x><C-f>"'   , ['i' , '-n-%i%'])
+    " 'ni'  is for normal mode; but force the use of <C-x><C-f> in insert mode
+    cal keybindings#Map('Complete filename' , '<A-Right>' , '<expr> pumvisible()? "<Cr>":"<C-x><C-f>"'   , ['i' , 'ni'])
     
     " Following example is usefull for re-discovering keys
     " When you hit <C-w>, a window with 'T -> Move to a new tab' is shown
@@ -64,16 +72,7 @@ This project group things intended to make Vim more accessible for people.
     ```
    </details><br>
 
-* Text to Speech dispatcher : keybinds and commands to make Vim speak<br>
-    (require speech-dispatcher on linux - if you use Orca it shall be already installed)
-    ```vim
-    "let g:speak_lang = "fr" " automatically set  by detecting the spell lang
-    "let g:speak_voice_type = "female1" " default
-    ```
-    `:SpeakLine` speak (send text at) the current line (to speech-dispatcher).<br>
-    `:SpeakWORD` speak the following word in the text; intended to be followed by W in order to read text word by word.<br>
-    <br>
-    Anyway, in a GVim just hit `<C-s>` (Ctrl + s) to toggle a screen reader mode.
+* Limitation and security : alias and keybindings do not use recursive mapping by default
 
 # Installation
 Get the repository.
@@ -85,10 +84,8 @@ git clone https://github.com/luffah/vim-accessibility.git ~/.vim/pack/ui/start/a
 ```vim
 packloadall
 
-" Examples
-let mapleader=","
-KeybindingsSource $VIMPLUGINS/vim-accessibility/doc/samples/common.vimkm
-KeybindingsSource $VIMPLUGINS/vim-accessibility/doc/samples/bepo.vimkm
+" Example
+call keybindings#Source('$VIMPLUGINS/vim-accessibility/doc/samples/common.vimkm')
 ```
 
 <details>
@@ -96,24 +93,19 @@ KeybindingsSource $VIMPLUGINS/vim-accessibility/doc/samples/bepo.vimkm
 If you have an old version of Vim (< 8), it is useless to create `~/.vim/pack/`. Just use the path where you install your plugins.
 
 ```vim
-
 " let $VIMPLUGINS = <Path to directory containing your plugins>
 "
 " [Optional]
-" This allows to access to documentation and some syntax sugar.
+" This allows to access to documentation.
 " Add to runtime path
 set rtp+=$VIMPLUGINS/vim-accessibility
 " Activate plugins
 filetype indent plugin on
 
 " [Required]
-" Given plugins commands are only usable after initialization
-" Sourcing the files, ensure KeybindingsSource is known.
 so $VIMPLUGINS/vim-accessibility/loader.vim
-" Examples
-let mapleader=","
-KeybindingsSource $VIMPLUGINS/vim-accessibility/doc/samples/common.vimkm
-KeybindingsSource $VIMPLUGINS/vim-accessibility/doc/samples/bepo.vimkm
+" Example
+call keybindings#Source('$VIMPLUGINS/vim-accessibility/doc/samples/common.vimkm')
 ```
 </details><br>
 

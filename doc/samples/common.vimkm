@@ -1,31 +1,26 @@
-" key(s)        "Comment              " action  %   modechar.postactions
 " this file can be loaded with :call keybindings(expand('%'))
-<F1> Q          "Cleared keys" <nop>        % n
+" modes   key(s)        "Comment              " action
+km(n)        <F1> Q      "Cleared keys"          <nop>
 
-" In the following examples I refers to instert mode and force <C-o> (normal mode)
 " Make Shift+Arrow enter in visual mode from insert mode
-<S-Up>          "Select"       v             %  I
-" Keep the same move behavior in visual mode
-<S-Up>          "Select"       <Up>          %  v
-" Same things with Down Rigt Left, but faster
-<S-Down>        "Select"                     %  Iv v<Down>
-<S-Right>       "Select"                     %  Iv v<Right>
-<S-Left>        "Select"                     %  Iv v<Left>
+km:for l:k in ['Up', 'Down', 'Left', 'Right']
+km(i<c-o>,n) <S-{l:k}>       "Enter Visual"                   v
+km(v)        <S-{l:k}>       "Visual selection (arrow)"       <{l:k}>
+km:endfor
 
 " Make Ctrl+Space to mark the position in the line
-<C-Space>       "Set mark"                   %  Im` nm` v``
-" Same thing for <Leader><Space>, except for insert mode
-<Leader><Space> "Set mark"                   %  nm` v``
+km(i<c-o>,n)    <C-Space>    "Set mark"      m`
+km(v)           <C-Space>    "Set mark"      ``
 
 " Copy paste the selection clipboard
-<C-Insert>      "Do copy"                    %  Iv  nv  v"*y
-<S-Del>         "Do cut"                     %  Iv  nv  v"*d
-<S-Insert>      "Do paste"                   %  c<C-r>*  I"*p  n"*p  v"*p
+km(i<c-o>gv,ngv,v) <S-Del>    "Do cut"     "*d
+km(i<c-o>,n,v)  <S-Insert>    "Do paste"   "*p
+km(c)           <S-Insert>    "Do paste"    <C-r>*
 
 " Completion in insert and normal mode (from normal mode, it forces insert mode)
-<A-Right>       "Compl. filename " pumvisible()?"<Cr>":"%1%<C-x><C-f>"   %  i  -n-%i%
-<A-Left>        "Compl. ommi     " pumvisible()?"<Left>":"%1%<C-x><C-o>" %  i  -n-%i%
-<A-Down>        "Compl. word     " pumvisible()?"<Down>":"%1%<C-x><C-n>" %  i  -n-%i%
-<A-Up>          "Compl.from file " pumvisible()?"<UP>":"%1%<C-x><C-i>"   %  i  -n-%i%
+km(i,na) <A-Right> "Compl. filename  " <expr> pumvisible()?"<Cr>":"<C-x><C-f>"
+km(i,na) <A-Left>  "Compl. ommi      " <expr> pumvisible()?"<Left>":"<C-x><C-o>"
+km(i,na) <A-Down>  "Compl. word      " <expr> pumvisible()?"<Down>":"<C-x><C-n>"
+km(i,na) <A-Up>    "Compl.from file  " <expr> pumvisible()?"<KeyBind>":"<C-x><C-i>"
 
 " vim: set nowrap : set ft=vim

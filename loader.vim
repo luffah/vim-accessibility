@@ -6,7 +6,6 @@
 " @Revision:    1
 let s:path=expand('<sfile>:p:h')
 exe 'source '.s:path.'/autoload/keybindings.vim'
-exe 'source '.s:path.'/autoload/remanent.vim'
 exe 'source '.s:path.'/autoload/colortheme.vim'
 exe 'source '.s:path.'/autoload/spelllang.vim'
 exe 'source '.s:path.'/autoload/selection.vim'
